@@ -1,0 +1,2 @@
+Từ giờ mỗi lần hoàn thành xong 1 feature hoặc task, hãy commit code với thông điệp commit theo chuẩn Conventional Commits. 
+Push lên git repository và tạo Pull Request (PR) từ nhánh develop vào main với tiêu đề PR theo chuẩn Conventional Commits.

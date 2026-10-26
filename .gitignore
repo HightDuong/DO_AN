@@ -1,0 +1,20 @@
+# Bảo mật (Tuyệt đối không đẩy lên Git)
+.env
+.env.*
+!.env.example
+
+# Thư mục thư viện nặng
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Cache của Claude và hệ thống
+.claude/conversations/
+.claude/context/
+.claude/cache/
+.next/
+
+# Tài liệu mẫu dùng để test cục bộ (không đưa vào lịch sử git)
+sample_docs/
