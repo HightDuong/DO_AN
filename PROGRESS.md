@@ -13,7 +13,7 @@ Cập nhật file này sau mỗi task hoàn thành.
 | 3. Supervisor + Quiz Agent | ✅ Task 4 xong (schema quiz, Quiz Agent, chấm điểm, mastery, LangGraph Supervisor, API) |
 | 4. Study Planner Agent | ✅ Task 5 xong (Planner + `/api/chat` đi qua Supervisor 3 agent) |
 | 4.5 Hoàn thiện backend cho demo | ✅ Task 5.5 xong (lịch sử chat, agent_runs, nhiệm vụ gắn mục/trang, seed hồ sơ demo) |
-| 5. Frontend | ⬜ Chưa bắt đầu |
+| 5. Frontend | 🟡 Task 6A xong (khởi tạo, layout, Dashboard, Knowledge Library, AI Tutor); Quiz Center + Study Planner là trang tạm |
 
 ## Quyết định khác với spec gốc (quan trọng, đừng revert)
 
@@ -173,6 +173,43 @@ Luôn trả HTTP 200; lỗi agent (dịch vụ AI không phản hồi...) là `t
 **Trạng thái DB sau Task 5.5 (sẵn sàng demo):** 3 tài liệu corpus (54 chunk) + hồ sơ HS01 đã seed; không có phiên chat/kế hoạch thừa.
 **Quy trình trước giờ demo:** `python scripts/seed_demo_profile.py --reset` (nếu chưa có tài liệu: chạy `scripts/test_rag.py` trước). Sau khi chạy `evaluate_rag.py` cũng phải chạy lại lệnh này (đánh giá tạo 60 phiên chat).
 
+### Task 6A — Khởi tạo Frontend + Dashboard, Knowledge Library, AI Tutor (xong, 2026-10-27)
+**Bổ sung backend trước** (các endpoint màn hình cần nhưng chưa từng có — chỉ có `POST /upload`):
+- `GET /api/documents` (tài liệu của user kèm `page_count`, `chunk_count`), `DELETE /api/documents/{id}` (xoá row → chunk + nguồn quiz cascade, rồi xoá file Storage best effort; 404 nếu không thuộc user).
+- Cột `documents.page_count` (đếm khi nạp). `init_db.py` có thêm danh sách `MIGRATIONS` chạy `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` vì `create_all` không sửa bảng cũ. 3 tài liệu corpus đã được điền số trang (30/15/6, khớp manifest).
+- `scripts/export_openapi.py`: xuất OpenAPI ra `frontend/openapi.json`. 163 test backend pass.
+
+**Cấu trúc**: app riêng `frontend/` (Next.js **16.4**, App Router, TypeScript, Tailwind CSS 4, Turbopack), tách hẳn `backend/`. `package.json` ở gốc `DO_AN/` (chỉ có 2 gói Supabase, không dùng) để nguyên.
+- `next.config.ts`: `turbopack.root = frontend/` — nếu không, Next lấy `DO_AN/` làm gốc (vì có `package-lock.json` ở gốc) và theo dõi cả `backend/.venv`, tốn RAM/CPU khi dev.
+- Bản Next này bật sẵn `cacheComponents`; các trang là Client Component tự gọi API sau khi tải (không cần SWR/TanStack). Đọc docs đi kèm ở `frontend/node_modules/next/dist/docs/` trước khi dùng API Next (theo `frontend/AGENTS.md`).
+- Thư viện thêm: **chỉ `lucide-react`** (+ `openapi-typescript` dev). Không cài shadcn/ui (kéo theo Radix) — `src/components/ui.tsx` tự viết Card/Badge/Button/ProgressBar/... theo phong cách shadcn bằng Tailwind thuần. Không thư viện animation, không thư viện markdown.
+- Font Inter (subset `latin` + `vietnamese`), nền `bg-slate-50`, thẻ `bg-white rounded-2xl shadow-sm border border-slate-100`.
+
+**Client API** (`src/lib/api.ts`): kiểu dữ liệu lấy từ `src/lib/api-types.ts` **sinh tự động từ OpenAPI của backend** (`npm run gen:api`) nên luôn khớp schema thật, không gõ tay. `fetch` thuần, lỗi FastAPI (`detail` dạng chuỗi / `{message}` / lỗi validation) được đổi thành `ApiError` có thông báo tiếng Việt; mất kết nối backend báo rõ. Có sẵn hàm cho cả quiz/kế hoạch (dùng ở 6B). `setAccessToken()` để gắn token khi có Supabase Auth; hiện chạy dưới `DEV_USER_ID`.
+- `.env.local` (gitignore) + `.env.example`: `NEXT_PUBLIC_API_URL=http://localhost:8000`.
+
+**Layout**: sidebar 5 mục (Dashboard, Knowledge Library, AI Tutor, Quiz Center, Study Planner), nút **"Nhật ký Agent"** mở ngăn kéo `GET /api/agent-runs` (sơ đồ luồng LangGraph + mỗi lần chạy: agent, trạng thái, thời gian, chuỗi tool đã gọi, phân loại bằng LLM/từ khoá — phục vụ Phần 6 demo), chấm trạng thái backend (kiểm tra `/health` 30 giây/lần). Màn hình hẹp: thanh điều hướng ngang.
+
+**Dashboard (`/`)**: gọi song song learning-summary, documents, study-plans?status=active.
+- Thẻ thống kê: tài liệu đã nạp (+ tổng số trang), bài quiz đã làm, điểm gần nhất (+ trung bình), **chuỗi ngày học** (ngày liên tiếp có làm quiz hoặc hoàn thành nhiệm vụ).
+- Thanh kinh nghiệm 5 chủ đề: ≥80% emerald, 50–79% amber, <50% rose + badge "Cần ôn tập", chưa làm bài = xám "Chưa có dữ liệu". Dòng chú thích chủ đề Planner đang ưu tiên (backend dùng ngưỡng 70%, khác ngưỡng màu của UI).
+- Kế hoạch hôm nay (ngày khớp hôm nay; chưa tới ngày bắt đầu thì hiện ngày 1; đã qua thì báo kết thúc) + tiến độ cả kế hoạch. Danh sách 5 bài làm gần nhất.
+
+**Knowledge Library (`/documents`)**: kéo-thả / chọn nhiều PDF, kiểm tra đuôi + ≤ 20 MB phía client, **nạp lần lượt từng file** (tránh chạm quota embedding), danh sách đang tải lên (xoay → xanh/đỏ kèm thông báo lỗi của backend, vd. bản scan). Danh sách tài liệu: badge `indexed` xanh / `processing`,`uploaded` xoay / `failed` đỏ, số trang, số đoạn, ngày nạp, nút xoá (có hỏi xác nhận). Lưu ý: upload là đồng bộ nên trạng thái `processing` chỉ thấy trong lúc đang tải lên.
+
+**AI Tutor (`/chat`)**: cột phiên (`GET /api/chat/sessions`) + "Cuộc trò chuyện mới"; mở phiên cũ tải lại lịch sử và **dựng lại đúng giao diện từ `payload`** đã lưu; gửi kèm `session_id` các lượt sau; bộ lọc "Tìm trong" theo tài liệu (`document_ids`, phục vụ cảnh 6 demo); 4 câu gợi ý theo kịch bản demo; Enter gửi, Shift+Enter xuống dòng.
+- `rag_answer`: câu trả lời (Markdown tối giản tự viết, dựng thành phần tử React — không `dangerouslySetInnerHTML`), **thẻ trích dẫn `[Tài liệu · Trang X · Mục Y]` bấm để mở nguyên văn `quote`**, mục thu gọn "Đoạn tài liệu đã truy xuất" (độ tương đồng, có/không đưa vào ngữ cảnh). `has_enough_evidence=false` → hộp vàng "Chưa tìm thấy đủ căn cứ trong giáo trình".
+- `quiz` / `study_plan`: tin nhắn + thẻ hành động (chủ đề, độ khó, số câu / ngày, chủ đề ưu tiên) với nút sang `/quizzes?quiz=<id>` / `/study-plans`.
+- `clarification`: bong bóng indigo có biểu tượng hỏi; `error`: bong bóng đỏ.
+
+**Quiz Center (`/quizzes`), Study Planner (`/study-plans`)**: trang tạm "đang xây dựng" để link không lỗi (làm ở 6B).
+
+**Kiểm tra:**
+- `npm run typecheck` (tsc --noEmit): 0 lỗi. `npm run build`: thành công, 6 route prerender tĩnh, không cảnh báo.
+- Chạy `lib/api.ts` thật bằng Node với backend đang chạy: đọc đúng 3 tài liệu (số trang), mastery HS01, lỗi 404 ra thông báo tiếng Việt từ backend. CORS preflight từ `localhost:3000` OK cho GET/POST/DELETE/upload.
+- `next start` bản production: `/`, `/documents`, `/chat`, `/quizzes`, `/study-plans` trả 200; đường dẫn sai trả 404 trong layout.
+- **Chưa kiểm tra bằng trình duyệt** (môi trường không có công cụ trình duyệt): giao diện thực tế, kéo-thả file, cuộn chat cần user mở `http://localhost:3000` để xem.
+
 ### Đánh giá bằng bộ mock data CSDL (2026-10-27)
 Dữ liệu: `StudyMate_AI_Bo_mock_data_CSDL/` (user chuẩn bị) — corpus 3 PDF (`GT_Co_so_du_lieu`, `BT_SQL_Bai_tap_va_loi_giai`, `CD_Giao_dich_va_ACID`, nạp từ `sample_docs/`), `data/rag_eval.json` (50 câu có nguồn chuẩn), `data/negative_eval.json` (10 câu cần từ chối).
 
@@ -199,5 +236,7 @@ Script: `backend/scripts/test_rag.py` (nạp corpus + 2 câu kiểm tra nhanh) v
 - OCR cho PDF scan (spec ghi rõ: để giai đoạn sau).
 - Hỏi lại chỉ nhớ 1 lượt (lượt trước là clarification); hội thoại nhiều lượt tổng quát (hỏi tiếp "giải thích thêm ý 2") chưa hỗ trợ — RAG vẫn trả lời từng câu độc lập.
 - Đề "[Mẫu]" do seed tạo không có câu hỏi chi tiết: mở `GET /api/quizzes/{id}` của chúng sẽ thấy danh sách câu rỗng (Frontend nên ẩn nút "Làm bài" với các đề này).
-- Frontend — chưa khởi tạo.
+- Frontend Task 6B: trang Quiz Center (làm bài, chấm, giải thích + nguồn, ẩn nút làm bài với đề "[Mẫu]"), Study Planner (xem theo ngày, tick hoàn thành qua PATCH), hiệu ứng chúc mừng nhẹ khi hoàn thành.
+- Frontend chưa có đăng nhập (Supabase Auth); mọi request chạy dưới `DEV_USER_ID`.
+- `CLAUDE.md` mục 4: lệnh `npm run dev` cần chạy trong `frontend/`; lệnh Docker không còn dùng.
 - Đánh giá chất lượng quiz do AI sinh (spec XII.2: >= 90% câu rõ ràng, có căn cứ) — chưa có script; có thể đối chiếu với `quiz_reference.json`.

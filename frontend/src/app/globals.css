@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+/* Thanh cuộn mảnh, hợp phong cách tối giản */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
