@@ -33,6 +33,7 @@ class ChatRequest(BaseModel):
     question: str = Field(
         min_length=1, max_length=1000, description="Tin nhắn của người học: câu hỏi, yêu cầu tạo quiz hoặc lập kế hoạch"
     )
+    session_id: UUID | None = Field(None, description="Phiên trò chuyện; bỏ trống để tạo phiên mới")
     document_ids: list[UUID] | None = Field(None, description="RAG: chỉ tìm trong các tài liệu này (tuỳ chọn)")
     top_k: int | None = Field(None, ge=1, le=8, description="RAG: số chunk truy xuất, mặc định theo cấu hình")
 
@@ -108,8 +109,10 @@ class ChatResponse(BaseModel):
     """
 
     type: ChatResultType
-    intent: ChatIntent
+    intent: ChatIntent | None = Field(description="null nếu lỗi xảy ra trước khi phân loại xong")
     message: str
+    session_id: UUID | None = Field(None, description="Phiên chứa tin nhắn này (gửi lại ở lượt sau)")
+    message_id: UUID | None = Field(None, description="Id tin nhắn trả lời đã lưu")
     rag_answer: RagAnswerOut | None = None
     quiz: QuizCreatedOut | None = None
     study_plan: StudyPlanCreatedOut | None = None
@@ -291,3 +294,42 @@ class PlanItemUpdateOut(BaseModel):
     item: StudyPlanItemOut
     plan_status: PlanStatus
     progress: float
+
+
+# ---------------------------------------------------------------------------
+# Lịch sử hội thoại và nhật ký agent
+# ---------------------------------------------------------------------------
+
+class ChatSessionOut(BaseModel):
+    id: UUID
+    title: str
+    created_at: datetime
+    updated_at: datetime
+    message_count: int
+
+
+class ChatMessageOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    role: Literal["user", "assistant"]
+    content: str
+    type: ChatResultType | None = Field(description="Chỉ có ở tin nhắn của trợ lý")
+    payload: dict | None = Field(description="ChatResponse đầy đủ của tin nhắn trợ lý, dùng để dựng lại giao diện")
+    created_at: datetime
+
+
+class AgentRunOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    session_id: UUID | None
+    message_id: UUID | None
+    intent: str | None
+    intent_source: str | None
+    agent_name: str | None
+    tools_called: list[str]
+    duration_ms: int
+    status: Literal["success", "clarification", "error"]
+    error_message: str | None
+    created_at: datetime

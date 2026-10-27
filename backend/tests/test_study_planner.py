@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.models import PlanStatus, StudyPlan
+from app.models import PlanStatus, QuizTopic, StudyPlan
 from app.services import study_planner_service as planner
 from app.services.study_planner_service import (
     GeneratedPlan,
@@ -143,6 +143,8 @@ class FakeSession:
 def weak_sql_profile(monkeypatch):
     profile = [_status("SQL", 0.6), _status("Mô hình quan hệ", 0.9)]
     monkeypatch.setattr(planner, "get_topic_mastery", lambda db, user_id: profile)
+    monkeypatch.setattr(planner, "get_user_profile", lambda db, user_id: None)
+    monkeypatch.setattr(planner, "get_document_outline", lambda db, user_id: {})
 
 
 def _fake_llm(monkeypatch, *plans):
@@ -164,7 +166,7 @@ class TestGenerateStudyPlan:
         plan = planner.generate_study_plan(db, uuid4(), "Ôn SQL", 2, 20, start_date=start)
 
         assert db.added == [plan] and db.commits == 1
-        assert len(db.executed) == 1  # UPDATE kế hoạch active cũ -> archived
+        assert len(db.executed) == 2  # UPDATE kế hoạch active cũ -> archived + lưu thời gian rảnh vào profile
         assert plan.focus_topics == ["SQL"] and plan.status == PlanStatus.active.value
         assert plan.end_date == start + timedelta(days=1)
         assert [(i.day_number, i.position, i.scheduled_date) for i in plan.items] == [
@@ -206,3 +208,81 @@ def test_create_study_plan_keeps_task_order_within_day():
     )
     assert isinstance(plan, StudyPlan)
     assert [(i.day_number, i.position, i.title) for i in plan.items] == [(1, 1, "A1"), (2, 1, "B1"), (2, 2, "B2")]
+
+
+# ---------------------------------------------------------------------------
+# Mục tài liệu theo chủ đề + chống bịa số trang
+# ---------------------------------------------------------------------------
+
+from app.services.rag_service import RetrievedChunk  # noqa: E402
+from app.services.study_planner_service import SectionRef, allowed_pages  # noqa: E402
+
+
+class TestPageReferences:
+    def test_known_page_is_accepted(self):
+        plan = _plan(_task(1, 20, title="Đọc mục 4.5 GROUP BY và HAVING (GT, tr. 21)"))
+        assert validate_plan(plan, 1, 20, [], known_pages={21, 26}) == []
+
+    @pytest.mark.parametrize("text", ["Đọc mục 4.5 (GT, tr. 99)", "Ôn lại trang 99", "Xem tr.99"])
+    def test_invented_page_is_rejected(self, text):
+        errors = validate_plan(_plan(_task(1, 20, title=text)), 1, 20, [], known_pages={21})
+        assert errors == ["nhiệm vụ 1 (ngày 1) nhắc trang 99 không có trong danh sách tài liệu"]
+
+    def test_page_in_description_is_checked_too(self):
+        task = PlannedTask(day=1, topic="SQL", activity_type="Ôn tập", title="Ôn GROUP BY",
+                           description="Đọc lại tr. 7 rồi làm bài", duration_minutes=20)
+        assert validate_plan(_plan(task), 1, 20, [], known_pages={21})
+
+    def test_no_page_check_when_outline_unknown(self):
+        plan = _plan(_task(1, 20, title="Đọc tr. 99"))
+        assert validate_plan(plan, 1, 20, [], known_pages=None) == []
+
+    def test_allowed_pages_from_outline(self):
+        outline = {"SQL": [SectionRef("GT", "4.5 GROUP BY", 21)], "Giao dịch": [SectionRef("CD", "CD-1", 2)]}
+        assert allowed_pages(outline) == {21, 2}
+
+
+def test_prompt_lists_sections_pages_and_frequent_mistakes():
+    outline = {"SQL": [SectionRef("GT_Co_so_du_lieu", "4.5 GROUP BY và HAVING", 21)]}
+    prompt = planner._build_planner_prompt(
+        [_status("SQL", 0.6)], ["SQL"], "Ôn", 3, 20, [], outline=outline, mistakes=["WHERE và HAVING"]
+    )
+    assert "- SQL: 4.5 GROUP BY và HAVING (GT_Co_so_du_lieu, tr. 21)" in prompt
+    assert "- Giao dịch: không tìm thấy mục phù hợp" in prompt
+    assert "<loi_hay_gap>\n- WHERE và HAVING\n</loi_hay_gap>" in prompt
+
+
+def test_document_outline_groups_dedupes_and_filters(monkeypatch):
+    doc = uuid4()
+
+    def chunk(section, page, sim):
+        return RetrievedChunk(uuid4(), doc, "GT", page, section, "...", sim)
+
+    results = iter([
+        [chunk("Chương 4 > 4.5 GROUP BY và HAVING", 22, 0.80), chunk("4.1 SELECT", 18, 0.40)],  # 4.1 dưới ngưỡng
+        [chunk("Chương 4 > 4.5 GROUP BY và HAVING", 21, 0.75), chunk("4.6 WHERE với HAVING", 22, 0.70)],
+    ])
+    embedded = []
+    monkeypatch.setattr(planner, "TOPIC_QUERIES", {QuizTopic.sql: ["q1", "q2"]})
+    monkeypatch.setattr(planner, "embed_queries", lambda texts: embedded.append(texts) or [[0.0]] * len(texts))
+    monkeypatch.setattr(planner, "search_by_vector", lambda *a, **k: next(results))
+
+    outline = planner.get_document_outline(None, uuid4(), ["SQL"])
+    assert embedded == [["q1", "q2"]]  # mọi truy vấn embed trong MỘT lần gọi
+    assert outline == {"SQL": [SectionRef("GT", "4.5 GROUP BY và HAVING", 21), SectionRef("GT", "4.6 WHERE với HAVING", 22)]}
+
+
+def test_generate_rejects_plan_citing_unknown_page(monkeypatch, weak_sql_profile):
+    monkeypatch.setattr(planner, "get_document_outline", lambda db, u: {"SQL": [SectionRef("GT", "4.5", 21)]})
+    prompts = _fake_llm(monkeypatch, _plan(_task(1, 20, title="Đọc tr. 99")), _plan(_task(1, 20, title="Đọc 4.5 (GT, tr. 21)")))
+    plan = planner.generate_study_plan(FakeSession(), uuid4(), "Ôn SQL", 1, 20)
+    assert "nhắc trang 99" in prompts[1]
+    assert plan.items[0].title == "Đọc 4.5 (GT, tr. 21)"
+
+
+def test_generate_passes_frequent_mistakes_from_profile(monkeypatch, weak_sql_profile):
+    monkeypatch.setattr(planner, "get_user_profile",
+                        lambda db, u: SimpleNamespace(frequent_mistakes=["COUNT sau LEFT JOIN"], daily_minutes=20))
+    prompts = _fake_llm(monkeypatch, _plan(_task(1, 20)))
+    planner.generate_study_plan(FakeSession(), uuid4(), "Ôn SQL", 1, 20)
+    assert "COUNT sau LEFT JOIN" in prompts[0]

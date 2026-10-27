@@ -38,6 +38,7 @@ from app.models import (
 )
 from app.services.llm_service import generate_structured
 from app.services.rag_service import RetrievedChunk, search_knowledge
+from app.services.tracing import record_tool
 
 log = logging.getLogger(__name__)
 
@@ -260,6 +261,7 @@ def generate_quiz(
         if missing <= 0:
             break
         prompt = _build_quiz_prompt(topic, difficulty, missing, refs, [q.question for q in accepted])
+        record_tool("generate_quiz")
         generated = generate_structured(QUIZ_SYSTEM_PROMPT, prompt, GeneratedQuiz, temperature=0.4)
         valid, rejected = validate_generated_questions(generated.questions, ref_to_chunk_id, seen)
         if rejected:
@@ -271,6 +273,7 @@ def generate_quiz(
     if len(accepted) < num_questions:
         log.info("Chỉ tạo được %d/%d câu hợp lệ cho chủ đề %s", len(accepted), num_questions, topic.value)
 
+    record_tool("save_quiz")
     quiz = build_quiz_set(owner_id, topic, difficulty, accepted)
     db.add(quiz)
     db.commit()

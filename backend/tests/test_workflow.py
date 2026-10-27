@@ -45,6 +45,7 @@ def agents(monkeypatch):
     monkeypatch.setattr(wf, "answer_question", fake_answer)
     monkeypatch.setattr(wf, "generate_quiz", fake_quiz)
     monkeypatch.setattr(wf, "generate_study_plan", fake_plan)
+    monkeypatch.setattr(wf, "get_user_availability", lambda db, user_id: None)  # chưa khai báo thời gian rảnh
     return calls
 
 
@@ -228,3 +229,42 @@ def test_graph_has_no_cycles_and_low_recursion_limit():
         ("study_planner", "__end__"),
     }
     assert wf.RECURSION_LIMIT <= 5
+
+
+def test_planner_uses_saved_availability_when_message_has_no_minutes(monkeypatch, agents):
+    """Cảnh 5 của kịch bản demo: "Tôi nên học gì trong ba ngày tới?" + hồ sơ 20 phút/ngày."""
+    _classifier(monkeypatch, _decision("study_planner", num_days=3))
+    monkeypatch.setattr(wf, "get_user_availability", lambda db, user_id: 20)
+    state = run_supervisor(None, uuid4(), "Tôi nên học gì trong ba ngày tới?")
+    assert agents == [("study_planner", "Tôi nên học gì trong ba ngày tới?", 3, 20)]
+    assert state["result"]["type"] == "study_plan"
+
+
+def test_minutes_in_message_override_saved_availability(monkeypatch, agents):
+    _classifier(monkeypatch, _decision("study_planner", num_days=3, daily_minutes=45))
+    monkeypatch.setattr(wf, "get_user_availability", lambda db, user_id: 20)
+    run_supervisor(None, uuid4(), "3 ngày, mỗi ngày 45 phút")
+    assert agents[0][3] == 45
+
+
+def test_clarification_context_reaches_classifier(monkeypatch, agents):
+    seen = {}
+
+    def fake(system_prompt, user_prompt, schema, temperature=None):
+        seen["input"] = user_prompt
+        return _decision("study_planner", daily_minutes=20)
+
+    monkeypatch.setattr(wf, "generate_structured", fake)
+    run_supervisor(None, uuid4(), "20 phút", context="Người học: Lập kế hoạch 7 ngày\nTrợ lý hỏi lại: Mỗi ngày bao nhiêu phút?")
+    assert "<ngu_canh>" in seen["input"] and "<tin_nhan_moi>\n20 phút\n</tin_nhan_moi>" in seen["input"]
+    assert agents[0][0] == "study_planner"
+
+
+def test_heuristic_fallback_uses_context(monkeypatch, agents):
+    _classifier(monkeypatch, error=LLMError("timeout"))
+    run_supervisor(None, uuid4(), "20 phút", context="Người học: Lập kế hoạch 7 ngày\nTrợ lý hỏi lại: Mỗi ngày bao nhiêu phút?")
+    assert agents[0][0] == "study_planner" and agents[0][2:] == (7, 20)
+
+
+def test_heuristic_recognises_what_should_i_study():
+    assert heuristic_decision("Tôi nên học gì trong ba ngày tới?").intent == "study_planner"

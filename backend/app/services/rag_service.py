@@ -21,6 +21,7 @@ from app.config import settings
 from app.models import Document, DocumentChunk, DocumentStatus
 from app.services.embedding_service import embed_query
 from app.services.llm_service import generate_structured
+from app.services.tracing import record_tool
 
 log = logging.getLogger(__name__)
 
@@ -69,7 +70,18 @@ def search_knowledge(
     document_ids: list[UUID] | None = None,
 ) -> list[RetrievedChunk]:
     """Tìm các chunk gần câu hỏi nhất (cosine `<=>`) trong tài liệu người dùng được phép truy cập."""
-    query_vector = embed_query(query)
+    record_tool("search_knowledge")
+    return search_by_vector(db, embed_query(query), owner_id, top_k, document_ids)
+
+
+def search_by_vector(
+    db: Session,
+    query_vector: list[float],
+    owner_id: UUID,
+    top_k: int | None = None,
+    document_ids: list[UUID] | None = None,
+) -> list[RetrievedChunk]:
+    """Như search_knowledge nhưng nhận sẵn vector (để gộp nhiều truy vấn vào một lần gọi embedding)."""
     distance = DocumentChunk.embedding.cosine_distance(query_vector).label("distance")
     stmt = (
         select(
@@ -236,10 +248,12 @@ def answer_question(
         log.info("Không có chunk nào vượt ngưỡng %.2f", settings.retrieval_min_similarity)
         return _not_enough(sources, used)
 
+    record_tool("answer_with_citations")
     llm_answer = _generate_answer(_build_prompt(question, relevant))
     if not llm_answer.has_enough_evidence:
         return _not_enough(sources, used)
 
+    record_tool("validate_citations")
     citations = validate_citations(llm_answer.citations, relevant)
     if not citations:
         log.warning("LLM trả lời nhưng không có trích dẫn nào kiểm chứng được -> chưa đủ bằng chứng")

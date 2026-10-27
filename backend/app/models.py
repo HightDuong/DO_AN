@@ -334,3 +334,94 @@ class StudyPlanItem(Base):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     plan: Mapped[StudyPlan] = relationship(back_populates="items")
+
+
+# ---------------------------------------------------------------------------
+# Hồ sơ người học
+# ---------------------------------------------------------------------------
+
+class UserProfile(Base):
+    """Thông tin người học dùng cho cá nhân hoá (spec V.2 `profiles`), gắn với tài khoản Supabase Auth."""
+
+    __tablename__ = "profiles"
+    __table_args__ = (
+        CheckConstraint("daily_minutes IS NULL OR daily_minutes > 0", name="ck_profiles_daily_minutes"),
+    )
+
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    display_name: Mapped[str | None] = mapped_column(Text)
+    daily_minutes: Mapped[int | None] = mapped_column(Integer)  # thời gian rảnh mỗi ngày gần nhất đã khai báo
+    goal: Mapped[str | None] = mapped_column(Text)
+    frequent_mistakes: Mapped[list[str]] = mapped_column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))
+    created_at: Mapped[datetime] = _created_at()
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
+    )
+
+
+# ---------------------------------------------------------------------------
+# Hội thoại và nhật ký thực thi agent
+# ---------------------------------------------------------------------------
+
+class ChatSession(Base):
+    __tablename__ = "chat_sessions"
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = _created_at()
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    messages: Mapped[list["ChatMessage"]] = relationship(
+        back_populates="session", cascade="all, delete-orphan", passive_deletes=True, order_by="ChatMessage.created_at"
+    )
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+    __table_args__ = (
+        CheckConstraint("role IN ('user', 'assistant')", name="ck_chat_messages_role"),
+        Index("ix_chat_messages_session_created", "session_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("chat_sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    role: Mapped[str] = mapped_column(Text, nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    # Với tin nhắn của trợ lý: loại kết quả (rag_answer/quiz/...) và toàn bộ ChatResponse dạng JSON,
+    # để Frontend dựng lại trích dẫn / thẻ quiz / thẻ kế hoạch khi tải lại trang.
+    type: Mapped[str | None] = mapped_column(Text)
+    payload: Mapped[dict | None] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = _created_at()
+
+    session: Mapped[ChatSession] = relationship(back_populates="messages")
+
+
+class AgentRun(Base):
+    """Một lần Supervisor xử lý tin nhắn. KHÔNG lưu nội dung tin nhắn, API key hay chi tiết lỗi thô."""
+
+    __tablename__ = "agent_runs"
+    __table_args__ = (
+        CheckConstraint("status IN ('success', 'clarification', 'error')", name="ck_agent_runs_status"),
+        CheckConstraint("duration_ms >= 0", name="ck_agent_runs_duration"),
+        Index("ix_agent_runs_user_created", "user_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    session_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("chat_sessions.id", ondelete="SET NULL"), index=True
+    )
+    message_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("chat_messages.id", ondelete="SET NULL")
+    )
+    intent: Mapped[str | None] = mapped_column(Text)
+    intent_source: Mapped[str | None] = mapped_column(Text)  # llm | heuristic
+    agent_name: Mapped[str | None] = mapped_column(Text)
+    tools_called: Mapped[list[str]] = mapped_column(JSONB, nullable=False)
+    duration_ms: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(Text, nullable=False)
+    error_message: Mapped[str | None] = mapped_column(Text)  # chỉ thông báo thân thiện hoặc tên lớp lỗi
+    created_at: Mapped[datetime] = _created_at()

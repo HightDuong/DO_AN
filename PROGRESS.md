@@ -12,6 +12,7 @@ Cập nhật file này sau mỗi task hoàn thành.
 | 2. RAG Tutor Agent | ✅ Task 3 xong, đã đánh giá bằng bộ 60 câu mock data — xem bên dưới |
 | 3. Supervisor + Quiz Agent | ✅ Task 4 xong (schema quiz, Quiz Agent, chấm điểm, mastery, LangGraph Supervisor, API) |
 | 4. Study Planner Agent | ✅ Task 5 xong (Planner + `/api/chat` đi qua Supervisor 3 agent) |
+| 4.5 Hoàn thiện backend cho demo | ✅ Task 5.5 xong (lịch sử chat, agent_runs, nhiệm vụ gắn mục/trang, seed hồ sơ demo) |
 | 5. Frontend | ⬜ Chưa bắt đầu |
 
 ## Quyết định khác với spec gốc (quan trọng, đừng revert)
@@ -139,6 +140,39 @@ Luôn trả HTTP 200; lỗi agent (dịch vụ AI không phản hồi...) là `t
 - Dữ liệu quiz/kế hoạch/mastery tạo khi test đã xoá (DB sạch cho demo).
 - Chi phí: mỗi tin nhắn `/api/chat` giờ tốn thêm 1 lượt gọi LLM để phân loại (~1s).
 
+### Task 5.5 — Hoàn thiện backend cho Demo & UI (xong, 2026-10-27)
+**Database** (đã tạo trên Supabase): `chat_sessions` (user_id, title = câu hỏi đầu, updated_at), `chat_messages` (role user/assistant, content, `type` + `payload` JSONB = toàn bộ ChatResponse để Frontend dựng lại trích dẫn/thẻ quiz/thẻ kế hoạch khi tải lại trang), `agent_runs` (user_id, session_id, message_id, intent, intent_source, agent_name, tools_called JSONB, duration_ms, status success/clarification/error, error_message, created_at) và **`profiles`** (user_id, display_name, daily_minutes, goal, frequent_mistakes JSONB).
+- Thêm `profiles` (ngoài danh sách yêu cầu) vì `demo_cases.json` cảnh 5 hỏi "Tôi nên học gì trong ba ngày tới?" **không nói số phút**: Planner cần thời gian rảnh đã khai báo trong hồ sơ (đúng tool `get_user_availability` trong rule). Mỗi lần lập kế hoạch với số phút mới, hồ sơ được cập nhật.
+- `agent_runs` **không có cột nội dung tin nhắn/prompt/payload** (có test kiểm tra). Lỗi ngoài dự kiến chỉ lưu tên lớp lỗi (vd. `RuntimeError`), không lưu thông điệp thô (có thể chứa chuỗi kết nối...).
+
+**Ghi nhận tool thực sự được gọi** (`app/services/tracing.py`): `ContextVar` + `record_tool(name)` đặt trong service; `chat_service` bọc mỗi lượt bằng `tool_trace()`. Đã kiểm chứng tool ghi bên trong node LangGraph vẫn được thu đúng. Ví dụ chạy thật:
+- RAG: `classify_intent, search_knowledge, answer_with_citations, validate_citations` (câu dưới ngưỡng chỉ có `classify_intent, search_knowledge`).
+- Quiz: `classify_intent, search_knowledge ×4, generate_quiz, save_quiz`.
+- Planner: `classify_intent, get_user_availability, get_topic_mastery, get_document_outline, generate_study_plan, validate_plan, create_study_plan`.
+
+**Chat** (`app/services/chat_service.py`, `app/routers/chat.py`, `app/routers/agent_runs.py`):
+- `POST /api/chat` nhận thêm `session_id` (không có thì tạo phiên mới); response thêm `session_id`, `message_id`; `intent` có thể null (lỗi trước khi phân loại xong). Câu hỏi được lưu + commit TRƯỚC khi chạy agent; trả lời + agent_run lưu sau. Lỗi ngoài dự kiến vẫn trả 200 `type=error` và vẫn ghi agent_run.
+- **Hỏi lại nhiều lượt**: nếu tin trước của trợ lý là `clarification`, Supervisor nhận thêm ngữ cảnh (câu của người học + câu hỏi lại) → "Tạo cho mình một bài kiểm tra" → "chủ đề nào?" → "SQL, 3 câu thôi" tạo đúng đề SQL 3 câu. Không có ngữ cảnh này thì câu trả lời ngắn bị hiểu là câu hỏi kiến thức.
+- `GET /api/chat/sessions` (kèm message_count, mới hoạt động trước), `GET /api/chat/sessions/{id}/messages` (theo thời gian, tin trợ lý kèm payload; phiên của người khác → 404), `GET /api/agent-runs?limit=20` (chỉ của user hiện tại, tối đa 100).
+- Lỗi đã sửa khi chạy thật: (1) ORM chèn `agent_runs` trước `chat_messages` → vi phạm FK `message_id` (không có relationship nên SQLAlchemy không biết thứ tự) → flush tin nhắn trước. (2) Đồng hồ Windows độ phân giải thô làm câu hỏi và trả lời trùng timestamp → trả lời luôn được gán thời điểm sau câu hỏi ít nhất 1µs.
+
+**Planner gắn nhiệm vụ với mục + trang tài liệu**:
+- `get_document_outline`: dùng lại truy vấn chủ đề của Quiz Agent, **embed mọi truy vấn trong 1 lần gọi API** (`embed_queries`) rồi tra pgvector (`search_by_vector`, tách từ `search_knowledge`), giữ chunk vượt ngưỡng, gom theo (tài liệu, mục), lấy trang nhỏ nhất, tối đa 5 mục/chủ đề.
+- Prompt kèm `<tai_lieu>` (mục + trang theo chủ đề) và `<loi_hay_gap>` (từ hồ sơ); yêu cầu tiêu đề nhiệm vụ ghi mục + "tr. N".
+- `validate_plan` thêm kiểm tra: **số trang nhắc trong tiêu đề/mô tả phải có trong danh sách đã đưa cho LLM**, nếu không coi là bịa nguồn → gửi lại cho LLM sửa.
+- Chạy thật cảnh 5 với hồ sơ HS01: kế hoạch 3 ngày × 20 phút, ưu tiên Giao dịch + SQL, nhiệm vụ như "5.1 Giao dịch, COMMIT và ROLLBACK (GT_Co_so_du_lieu, tr. 26)", "Kết hợp WHERE và HAVING (BT_SQL_Bai_tap_va_loi_giai, tr. 10)" — khớp lỗi hay gặp của HS01.
+
+**Script `backend/scripts/seed_demo_profile.py`**:
+- `--list` (5 hồ sơ), mặc định nạp **HS01** (SQL 60%, Mô hình quan hệ 90%, Giao dịch 50%, 20 phút/ngày), `--profile HS0x`, `--user-id`, `--reset`.
+- Nạp `profiles` + mỗi lượt trong `attempt_history` thành 1 `quiz_set` "[Mẫu HS01-A1] ..." + 1 `quiz_attempt` (chỉ là bản ghi lịch sử, không có câu hỏi chi tiết vì dữ liệu gốc chỉ có số câu đúng/tổng) + `user_topic_mastery` cộng dồn bằng đúng `merge_mastery` của app. Kiểm tra mastery tính ra khớp `topic_scores` trước khi ghi.
+- Không có `--reset` mà user đã có dữ liệu học tập → dừng (tránh cộng dồn 2 lần). `--reset` xoá chat, agent_runs, kế hoạch, quiz/lần làm bài, mastery, profile — **giữ nguyên tài liệu đã nạp**.
+- Không có file `learner_profiles.json` → dùng hồ sơ HS01 dựng sẵn trong script (có test bảo đảm trùng dữ liệu file).
+
+**Kiểm thử:** `pytest` **158 test pass** (+52: tracing qua LangGraph, chat_service, API lịch sử/agent-runs, chống bịa trang, outline, ngữ cảnh hỏi lại, thời gian rảnh từ hồ sơ, seed trên cả 5 hồ sơ thật).
+
+**Trạng thái DB sau Task 5.5 (sẵn sàng demo):** 3 tài liệu corpus (54 chunk) + hồ sơ HS01 đã seed; không có phiên chat/kế hoạch thừa.
+**Quy trình trước giờ demo:** `python scripts/seed_demo_profile.py --reset` (nếu chưa có tài liệu: chạy `scripts/test_rag.py` trước). Sau khi chạy `evaluate_rag.py` cũng phải chạy lại lệnh này (đánh giá tạo 60 phiên chat).
+
 ### Đánh giá bằng bộ mock data CSDL (2026-10-27)
 Dữ liệu: `StudyMate_AI_Bo_mock_data_CSDL/` (user chuẩn bị) — corpus 3 PDF (`GT_Co_so_du_lieu`, `BT_SQL_Bai_tap_va_loi_giai`, `CD_Giao_dich_va_ACID`, nạp từ `sample_docs/`), `data/rag_eval.json` (50 câu có nguồn chuẩn), `data/negative_eval.json` (10 câu cần từ chối).
 
@@ -161,10 +195,9 @@ Script: `backend/scripts/test_rag.py` (nạp corpus + 2 câu kiểm tra nhanh) v
 
 ## Việc còn thiếu / cần làm tiếp
 
-- Bảng `profiles` (chưa có FK từ `documents.owner_id`).
+- Bảng `profiles` đã có (Task 5.5) nhưng chưa có FK từ `documents.owner_id` / các bảng khác sang `profiles`, và chưa tự tạo profile khi người dùng đăng ký.
 - OCR cho PDF scan (spec ghi rõ: để giai đoạn sau).
-- Lưu lịch sử hội thoại (`chat_sessions`, `chat_messages`) và log `agent_runs` — chưa làm.
-- Planner chưa gắn nhiệm vụ với mục cụ thể trong tài liệu (vd. "đọc mục 4.5, trang 21"); tiêu đề nhiệm vụ còn chung chung.
-- Seed điểm từ `learner_profiles.json` cho demo (5 hồ sơ giả lập) — chưa có script; hiện mastery chỉ có khi làm quiz thật.
+- Hỏi lại chỉ nhớ 1 lượt (lượt trước là clarification); hội thoại nhiều lượt tổng quát (hỏi tiếp "giải thích thêm ý 2") chưa hỗ trợ — RAG vẫn trả lời từng câu độc lập.
+- Đề "[Mẫu]" do seed tạo không có câu hỏi chi tiết: mở `GET /api/quizzes/{id}` của chúng sẽ thấy danh sách câu rỗng (Frontend nên ẩn nút "Làm bài" với các đề này).
 - Frontend — chưa khởi tạo.
 - Đánh giá chất lượng quiz do AI sinh (spec XII.2: >= 90% câu rõ ràng, có căn cứ) — chưa có script; có thể đối chiếu với `quiz_reference.json`.

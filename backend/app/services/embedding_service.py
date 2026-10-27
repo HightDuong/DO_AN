@@ -67,3 +67,8 @@ def embed_documents(texts: list[str]) -> list[list[float]]:
 def embed_query(text: str) -> list[float]:
     """Embedding cho câu hỏi của người học (lúc truy xuất)."""
     return _embed([text], "RETRIEVAL_QUERY")[0]
+
+
+def embed_queries(texts: list[str]) -> list[list[float]]:
+    """Embedding cho nhiều câu truy vấn trong một lần gọi API (theo lô)."""
+    return _embed(texts, "RETRIEVAL_QUERY")

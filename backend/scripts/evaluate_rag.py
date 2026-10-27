@@ -2,6 +2,8 @@
 
 Câu hỏi được gửi qua POST /api/chat, tức là đi qua Supervisor trước: script đếm cả số câu hỏi
 kiến thức bị phân loại nhầm sang Quiz Agent / Study Planner.
+Mỗi câu tạo một phiên chat + một bản ghi agent_runs: sau khi đánh giá, chạy
+`python scripts/seed_demo_profile.py --reset` để đưa dữ liệu demo về trạng thái chuẩn.
 
 Chạy từ thư mục backend/ (sau khi đã nạp corpus, vd. bằng scripts/test_rag.py):
     python scripts/evaluate_rag.py            # tiếp tục từ lần chạy trước nếu có

@@ -1,7 +1,7 @@
 """Kiểm thử POST /api/chat đi qua Supervisor: định dạng response chung cho cả 3 agent."""
 from datetime import date
 from types import SimpleNamespace
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from fastapi.testclient import TestClient
@@ -11,6 +11,8 @@ from app.agents.workflow import IntentDecision
 from app.auth import get_current_user_id
 from app.db import get_db
 from app.main import app
+from app.models import AgentRun, ChatMessage
+from app.services import chat_service
 from app.services.llm_service import LLMError
 from app.services.rag_service import Citation, RagAnswer, RetrievedChunk
 
@@ -19,9 +21,9 @@ DOC_ID = uuid4()
 
 
 @pytest.fixture
-def client():
+def client(recording_db):
     app.dependency_overrides[get_current_user_id] = lambda: USER_ID
-    app.dependency_overrides[get_db] = lambda: None
+    app.dependency_overrides[get_db] = lambda: recording_db
     yield TestClient(app)
     app.dependency_overrides.clear()
 
@@ -101,6 +103,7 @@ def test_study_plan_shape(client, monkeypatch):
 
 def test_clarification_shape(client, monkeypatch):
     _route_to(monkeypatch, "study_planner", num_days=7)
+    monkeypatch.setattr(wf, "get_user_availability", lambda db, user_id: None)  # hồ sơ chưa có thời gian rảnh
     body = client.post("/api/chat", json={"question": "Lập kế hoạch 7 ngày"}).json()
     assert body["type"] == "clarification" and "bao nhiêu phút" in body["message"]
     _expect_only_payload(body, None)
@@ -120,3 +123,21 @@ def test_agent_failure_returns_error_type_with_200(client, monkeypatch):
 
 def test_empty_question_is_rejected(client):
     assert client.post("/api/chat", json={"question": "   "}).status_code == 422
+
+
+def test_each_turn_is_saved_with_agent_run(client, recording_db, monkeypatch):
+    _route_to(monkeypatch, "quiz_agent")  # thiếu chủ đề -> clarification
+    body = client.post("/api/chat", json={"question": "Tạo đề"}).json()
+
+    messages = recording_db.of_type(ChatMessage)
+    assert [(m.role, m.type) for m in messages] == [("user", None), ("assistant", "clarification")]
+    assert messages[1].id == UUID(body["message_id"]) and messages[1].payload["type"] == "clarification"
+    run = recording_db.of_type(AgentRun)[0]
+    assert run.message_id == messages[1].id and str(run.session_id) == body["session_id"]
+    assert run.status == "clarification" and run.tools_called == ["classify_intent"]
+
+
+def test_unknown_session_returns_404(client, monkeypatch):
+    monkeypatch.setattr(chat_service, "get_session", lambda db, user_id, session_id: None)
+    r = client.post("/api/chat", json={"question": "hi", "session_id": str(uuid4())})
+    assert r.status_code == 404
