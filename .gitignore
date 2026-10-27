@@ -18,3 +18,5 @@ __pycache__/
 
 # Tài liệu mẫu dùng để test cục bộ (không đưa vào lịch sử git)
 sample_docs/
+# Kết quả chạy script đánh giá
+backend/scripts/output/

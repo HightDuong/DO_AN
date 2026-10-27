@@ -30,7 +30,7 @@ class Settings(BaseSettings):
 
     # LLM trả lời (RAG Tutor). "gemini" | "openai" — chỉ ảnh hưởng bước sinh câu trả lời,
     # embedding luôn dùng Gemini (chunk đã index bằng gemini-embedding-001, không đổi được).
-    llm_provider: str = "gemini"
+    llm_provider: str = "openai"
     llm_model: str = "gemini-3.5-flash"
     llm_temperature: float = 0.2
     llm_max_retries: int = 2
