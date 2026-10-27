@@ -41,8 +41,12 @@ Cập nhật file này sau mỗi task hoàn thành.
 - Đã test: trích xuất + chunk trên PDF tiếng Việt tự tạo (có/không mục lục) — đúng số tiêu đề, overlap đúng. Gọi Gemini embedding thật (768 chiều, đã chuẩn hoá). Các case lỗi (không token, không phải PDF, file rỗng) trả đúng mã lỗi.
 - `backend/app/main.py`, `backend/app/config.py`: bổ sung `CORSMiddleware` (origin mặc định `http://localhost:3000`, đổi qua `CORS_ORIGINS` trong `.env`, nhiều origin cách nhau bằng dấu phẩy) để chuẩn bị cho Next.js gọi API.
 - Đã test lại: health check, CORS preflight, upload không token → 401 — đều đúng. Server khởi động sạch với cấu hình mới.
-- **Chưa test**: upload thật lên Supabase (Storage + DB) — để user tự chạy qua Swagger UI (`/docs`), dùng `DEV_USER_ID` trong `.env` để bỏ qua login khi test.
 - **Known issue**: `sample_docs/SachCSDL_bannop.pdf` là bản scan (không có lớp text) → sẽ báo lỗi 422, cần giáo trình PDF có text thật để test.
+- **Đã test thật với dữ liệu production**: user upload giáo trình CSDL thật (63 trang, "Bài 1..6") qua Swagger → chạy hết pipeline, `status=indexed`, 49 chunk, đều có embedding. Rà soát trực tiếp trong Supabase phát hiện 2 lỗi ở `pdf_service.py`, đã sửa cả hai và re-index lại đúng (không cần upload lại):
+  1. `_CHAPTER_PATTERN` chỉ nhận "Chương/Phần/Chapter/Part", không nhận "Bài" → tiêu đề "BÀI 1" bị tiêu đề con ngay sau đè mất. Đã thêm "bài/lesson/unit" vào pattern.
+  2. Dòng trong trang Mục lục (dạng "Bài 1: Tên .......... 5") bị nhận nhầm thành tiêu đề thật → làm sai lệch cả `chapter` context cho các trang sau (vd. "LỜI NÓI ĐẦU" bị gắn nhầm thành con của "BÀI 6"). Đã thêm `_TOC_DOT_LEADER_PATTERN` để loại các dòng có chấm dẫn + số trang cuối dòng khỏi heuristic nhận diện tiêu đề.
+  3. (phụ) Câu lệnh SQL in đậm viết hoa (`SELECT * FROM EMP`) bị nhận nhầm thành tiêu đề vì trùng điều kiện bold+uppercase. Đã thêm điều kiện: nhánh fallback bold+uppercase chỉ tính là tiêu đề khi có ký tự có dấu tiếng Việt (tiêu đề thật luôn có dấu, code/SQL thì không).
+- **Known limitation (không phải bug)**: ~50% chunk dưới 500 token vì luật tự đặt "không để chunk vắt qua 2 mục" — giáo trình có nhiều mục con ngắn. Cần bộ câu hỏi đánh giá thực tế để quyết định có nới luật này không (spec đã ghi rõ 500-800 chỉ là điểm xuất phát).
 
 ## Việc còn thiếu / cần làm tiếp
 

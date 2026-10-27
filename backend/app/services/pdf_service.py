@@ -64,9 +64,11 @@ _BOLD_FLAG = 16
 _MARGIN_RATIO = 0.07  # khối nằm trong 7% trên/dưới trang được coi là header/footer tiềm năng
 _MAX_SECTION_LEN = 200
 
-_CHAPTER_PATTERN = re.compile(r"^(chương|phần|chapter|part)\s+([\dIVXLC]+)\b", re.IGNORECASE)
+_CHAPTER_PATTERN = re.compile(r"^(chương|phần|bài|chapter|part|lesson|unit)\s+([\dIVXLC]+)\b", re.IGNORECASE)
 _NUMBERED_PATTERN = re.compile(r"^(\d+(\.\d+)*\.?|[IVXLC]+\.|[A-Z]\.)\s+\S")
 _PAGE_NUMBER_PATTERN = re.compile(r"^(trang|page)?\s*[-–]?\s*\d{1,4}\s*[-–]?$", re.IGNORECASE)
+_TOC_DOT_LEADER_PATTERN = re.compile(r"\.{4,}\s*\d{1,4}\s*$")  # "... Tên mục ..........  12" (dòng mục lục)
+_NON_ASCII_PATTERN = re.compile(r"[^\x00-\x7f]")  # ký tự có dấu tiếng Việt
 _CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 
 
@@ -155,11 +157,17 @@ def _body_font_size(raw: list[_RawBlock]) -> float:
 def _looks_like_heading(b: _RawBlock, body_size: float) -> bool:
     if len(b.text) > 150 or b.line_count > 3 or b.text.endswith((",", ";")):
         return False
+    if _TOC_DOT_LEADER_PATTERN.search(b.text):
+        return False  # dòng trong trang Mục lục, không phải tiêu đề thật
     if _CHAPTER_PATTERN.match(b.text):
         return True
     if b.font_size >= body_size * 1.15:
         return True
-    return b.bold and (bool(_NUMBERED_PATTERN.match(b.text)) or b.text.isupper())
+    if b.bold and _NUMBERED_PATTERN.match(b.text):
+        return True
+    # Toàn chữ hoa + in đậm nhưng cỡ chữ như văn bản thường: chỉ coi là tiêu đề nếu có dấu
+    # tiếng Việt, để không nhận nhầm dòng lệnh SQL/code ví dụ (ví dụ "SELECT * FROM EMP").
+    return bool(b.bold and b.text.isupper() and _NON_ASCII_PATTERN.search(b.text))
 
 
 def _sections_from_headings(raw: list[_RawBlock]) -> list[TextBlock]:
