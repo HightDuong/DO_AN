@@ -17,6 +17,18 @@ class DocumentUploadResponse(BaseModel):
     license: str | None
     storage_path: str
     status: DocumentStatus
+    page_count: int | None
+    chunk_count: int
+    created_at: datetime
+
+
+class DocumentOut(BaseModel):
+    id: UUID
+    title: str
+    source_url: str | None
+    license: str | None
+    status: DocumentStatus
+    page_count: int | None = Field(description="null với tài liệu nạp trước khi có cột này")
     chunk_count: int
     created_at: datetime
 

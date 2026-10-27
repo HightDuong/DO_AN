@@ -252,6 +252,15 @@ def _truncate(section: str | None) -> str | None:
     return section
 
 
+def count_pages(pdf_bytes: bytes) -> int | None:
+    """Số trang của PDF; None nếu không mở được (lỗi sẽ được báo ở bước trích xuất)."""
+    try:
+        with pymupdf.open(stream=pdf_bytes, filetype="pdf") as doc:
+            return doc.page_count
+    except Exception:
+        return None
+
+
 def extract_blocks(pdf_bytes: bytes) -> list[TextBlock]:
     """Đọc PDF, trả về các khối văn bản theo thứ tự đọc kèm số trang và mục."""
     try:

@@ -46,6 +46,7 @@ class Document(Base):
     source_url: Mapped[str | None] = mapped_column(Text)
     storage_path: Mapped[str] = mapped_column(Text, nullable=False)
     license: Mapped[str | None] = mapped_column(Text)
+    page_count: Mapped[int | None] = mapped_column(Integer)  # số trang PDF (Task 6A)
     status: Mapped[DocumentStatus] = mapped_column(
         Enum(DocumentStatus, name="document_status", values_callable=lambda e: [m.value for m in e]),
         nullable=False,

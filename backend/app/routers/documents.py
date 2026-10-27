@@ -10,9 +10,9 @@ from app.auth import get_current_user_id
 from app.config import settings
 from app.db import get_db
 from app.models import Document, DocumentStatus
-from app.schemas import DocumentError, DocumentUploadResponse
+from app.schemas import DocumentError, DocumentOut, DocumentUploadResponse
 from app.services.embedding_service import EmbeddingError
-from app.services.ingestion_service import index_document
+from app.services.ingestion_service import delete_document, index_document, list_documents
 from app.services.pdf_service import PDFExtractionError
 from app.services.storage_service import StorageError, delete_pdf, upload_pdf
 
@@ -108,6 +108,43 @@ def upload_document(
         license=document.license,
         storage_path=document.storage_path,
         status=document.status,
+        page_count=document.page_count,
         chunk_count=chunk_count,
         created_at=document.created_at,
     )
+
+
+@router.get("", response_model=list[DocumentOut])
+def read_documents(
+    owner_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> list[DocumentOut]:
+    """Danh sách tài liệu của người dùng, mới nhất trước."""
+    return [
+        DocumentOut(
+            id=d.id,
+            title=d.title,
+            source_url=d.source_url,
+            license=d.license,
+            status=d.status,
+            page_count=d.page_count,
+            chunk_count=count,
+            created_at=d.created_at,
+        )
+        for d, count in list_documents(db, owner_id)
+    ]
+
+
+@router.delete(
+    "/{document_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={404: {"description": "Không tìm thấy tài liệu"}},
+)
+def remove_document(
+    document_id: UUID,
+    owner_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> None:
+    """Xoá tài liệu, các chunk của nó và file gốc trên Storage."""
+    if not delete_document(db, owner_id, document_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Không tìm thấy tài liệu.")
