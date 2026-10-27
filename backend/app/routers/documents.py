@@ -94,7 +94,7 @@ def upload_document(
     try:
         chunk_count = index_document(db, document, data)
     except PDFExtractionError as exc:
-        raise _error(status.HTTP_422_UNPROCESSABLE_ENTITY, str(exc), document) from exc
+        raise _error(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc), document) from exc
     except EmbeddingError as exc:
         raise _error(status.HTTP_502_BAD_GATEWAY, f"Không tạo được embedding: {exc}", document) from exc
     except Exception as exc:
