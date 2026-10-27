@@ -11,7 +11,7 @@ Cập nhật file này sau mỗi task hoàn thành.
 | 1. Database schema + pipeline nạp PDF | ✅ Xong (Task 1, 2) |
 | 2. RAG Tutor Agent | ✅ Task 3 xong, đã đánh giá bằng bộ 60 câu mock data — xem bên dưới |
 | 3. Supervisor + Quiz Agent | ✅ Task 4 xong (schema quiz, Quiz Agent, chấm điểm, mastery, LangGraph Supervisor, API) |
-| 4. Study Planner Agent | ⬜ Chưa bắt đầu |
+| 4. Study Planner Agent | ✅ Task 5 xong (Planner + `/api/chat` đi qua Supervisor 3 agent) |
 | 5. Frontend | ⬜ Chưa bắt đầu |
 
 ## Quyết định khác với spec gốc (quan trọng, đừng revert)
@@ -93,7 +93,7 @@ Cập nhật file này sau mỗi task hoàn thành.
 - `classify_intent` dùng LLM (Structured Output: intent + topic/num_questions/difficulty nếu là quiz); LLM lỗi thì fallback phân loại bằng từ khoá.
 - Quiz chưa rõ chủ đề: trả `clarification` hỏi lại, không sinh đề.
 - Chống vòng lặp: đồ thị không có cạnh quay lui (test kiểm tra đúng tập cạnh), `recursion_limit=5`, mỗi lời gọi LLM có timeout + retry giới hạn. Lỗi trong agent trả về `result.type = "error"`, không làm sập workflow.
-- **Chưa nối vào API**: `POST /api/chat` vẫn gọi thẳng RAG Tutor (xem "Cần user quyết định").
+- Task 5: đã nối vào `POST /api/chat` và thêm nhánh `study_planner` (xem Task 5).
 
 **API** (`app/routers/quizzes.py`):
 - `POST /api/quizzes/generate` `{topic, num_questions 1-10, difficulty, document_ids?}`: 201, đề KHÔNG kèm đáp án.
@@ -105,6 +105,39 @@ Cập nhật file này sau mỗi task hoàn thành.
 - `pytest`: **61 test pass** (12 RAG cũ + 31 quiz + 18 supervisor), tất cả offline (LLM, truy xuất, session đều giả).
 - Chạy thật trên Supabase + OpenAI: sinh đề SQL 5 câu (~14s), GET không lộ đáp án, nộp lần 1 được 40% (2/5, 2 câu bỏ trống) nên mastery SQL 0.4; nộp lần 2 đúng hết, mastery 0.7 (7/10, cộng dồn đúng); câu hỏi lạ trả 400; đề không tồn tại trả 404. Supervisor phân loại đúng 4/4 tin nhắn thật, kể cả câu đánh lừa "Kiểm tra giúp mình xem khóa ngoại là gì" (sang RAG). Lớp kiểm tra đã loại 1 câu có phương án "tất cả..." và vòng 2 sinh bù đủ.
 - Dữ liệu quiz tạo trong lúc test đã được xoá (DB sạch cho demo).
+
+### Task 5 — Study Planner Agent + `/api/chat` qua Supervisor (xong, 2026-10-27)
+**Database**: `study_plans` (user_id, title, goal, summary, num_days, daily_minutes, start_date, end_date, deadline, focus_topics JSONB, status active/completed/archived) và `study_plan_items` (day_number, scheduled_date, position, topic, activity_type, title, description, duration_minutes, status pending/completed/skipped, completed_at). Đã tạo trên Supabase.
+
+**Study Planner** (`app/services/study_planner_service.py`, tên hàm theo tool trong rule: `get_topic_mastery`, `create_study_plan`, `update_plan_progress`):
+- Đọc mastery 5 chủ đề thẳng từ `user_topic_mastery`. Chủ đề chưa làm bài ghi "chưa có dữ liệu", không gán điểm giả và không tính là yếu. Chủ đề cần ưu tiên = mastery < 0.7, yếu nhất trước (tính bằng code, không để LLM tự chọn).
+- LLM (Structured Output `GeneratedPlan{summary, tasks[day, topic, activity_type, title, description, duration_minutes]}`) nhận đúng số liệu thật + chủ đề ưu tiên + giới hạn phút/ngày.
+- `validate_plan` (code): **tổng phút của từng ngày ≤ daily_minutes** (kiểm theo từng ngày, không theo trung bình); day trong 1..num_days; ngày nào cũng có nhiệm vụ; ≤ 4 nhiệm vụ/ngày; mỗi nhiệm vụ ≥ 5 phút; mọi chủ đề ưu tiên xuất hiện ít nhất 1 lần.
+- Vi phạm → gửi lại danh sách lỗi cụ thể cho LLM sửa (tối đa 2 vòng). Vẫn sai → `PlanGenerationError`, **không lưu kế hoạch sai**.
+- Mỗi người chỉ có 1 kế hoạch `active`: tạo kế hoạch mới thì kế hoạch active cũ chuyển `archived`. Kế hoạch tự chuyển `completed` khi không còn nhiệm vụ `pending`.
+- Tham số ngoài phạm vi (num_days 1-30, daily_minutes 10-480, kế hoạch kết thúc sau `deadline`) bị từ chối trước khi gọi LLM.
+
+**Supervisor**: thêm intent `study_planner`; classifier trích `num_days`, `daily_minutes` (đổi giờ sang phút), `goal`. **Không có thời gian rảnh mỗi ngày thì hỏi lại** (`clarification`), không tự đoán. Fallback từ khoá cũng nhận diện kế hoạch ("kế hoạch", "lịch học", "lộ trình"...) và trích "7 ngày", "1 tuần", "20 phút", "1,5 tiếng", "nửa tiếng".
+
+**`POST /api/chat` đổi định dạng response** (breaking change so với Task 3, Frontend phải theo dạng mới):
+```
+{ "type": "rag_answer" | "quiz" | "study_plan" | "clarification" | "error",
+  "intent": "rag_tutor" | "quiz_agent" | "study_planner",
+  "message": "câu hiển thị ngay được trong khung chat",
+  "rag_answer": {answer, has_enough_evidence, citations, sources} | null,
+  "quiz": {quiz_set_id, title, topic, difficulty, question_count} | null,
+  "study_plan": {plan_id, title, start_date, end_date, num_days, daily_minutes, focus_topics, item_count} | null }
+```
+Luôn trả HTTP 200; lỗi agent (dịch vụ AI không phản hồi...) là `type="error"` kèm `message`. Request giữ nguyên `{question, document_ids?, top_k?}`. Đã cập nhật `scripts/test_rag.py`, `scripts/evaluate_rag.py` theo dạng mới (evaluate còn đếm số câu bị Supervisor chuyển nhầm).
+
+**API** (`app/routers/study_plans.py`): `POST /api/study-plans/generate` `{goal, num_days, daily_minutes, start_date?, deadline?}` (201, trả kế hoạch nhóm theo ngày kèm `total_minutes`), `GET /api/study-plans?status=` (mới nhất trước, kèm `progress`), `PATCH /api/study-plans/{id}/items/{item_id}` `{status}` (người khác/nhiệm vụ không thuộc kế hoạch → 404).
+
+**Kiểm thử:**
+- `pytest`: **106 test pass** (thêm 24 test Planner — trong đó 5 test riêng cho ràng buộc phút/ngày: đúng bằng giới hạn hợp lệ, vượt 1 phút bị chặn, kiểm theo từng ngày chứ không theo trung bình, báo mọi ngày vượt, 1 nhiệm vụ dài hơn giới hạn; vẫn sai sau 2 vòng thì không lưu — và 6 test endpoint `/api/chat` cho từng `type`).
+- Chạy thật qua `/api/chat`: 3 yêu cầu tạo quiz → làm bài được SQL 40%, Giao dịch 33%, Mô hình quan hệ 100%; "Lập kế hoạch ôn tập cho mình" → hỏi lại số phút; "7 ngày, mỗi ngày 20 phút" → kế hoạch 14 nhiệm vụ, **cả 7 ngày đúng 20 phút**, ưu tiên Giao dịch + SQL (60 phút mỗi chủ đề), chủ đề chưa có dữ liệu được xếp bài quiz. Tạo kế hoạch mới → cũ chuyển `archived`; PATCH cập nhật tiến độ; deadline quá sớm → 422.
+- Chạy lại `evaluate_rag.py` qua Supervisor: **chuyển nhầm 0/60**, Recall@5 90%, trích dẫn hợp lệ 100%, từ chối đúng 10/10, tỷ lệ trả lời 94% (trước 96%: RAG-47 bị từ chối ở lần chạy này — dao động của LLM, câu vẫn được chuyển đúng tới RAG).
+- Dữ liệu quiz/kế hoạch/mastery tạo khi test đã xoá (DB sạch cho demo).
+- Chi phí: mỗi tin nhắn `/api/chat` giờ tốn thêm 1 lượt gọi LLM để phân loại (~1s).
 
 ### Đánh giá bằng bộ mock data CSDL (2026-10-27)
 Dữ liệu: `StudyMate_AI_Bo_mock_data_CSDL/` (user chuẩn bị) — corpus 3 PDF (`GT_Co_so_du_lieu`, `BT_SQL_Bai_tap_va_loi_giai`, `CD_Giao_dich_va_ACID`, nạp từ `sample_docs/`), `data/rag_eval.json` (50 câu có nguồn chuẩn), `data/negative_eval.json` (10 câu cần từ chối).
@@ -126,13 +159,12 @@ Script: `backend/scripts/test_rag.py` (nạp corpus + 2 câu kiểm tra nhanh) v
 - **Phát hiện phụ**: vài lần LLM nhầm `document_id` với số thứ tự `so="N"` của thẻ `<nguon>` trong prompt → bị `validate_citations` loại đúng, không lọt ra ngoài, nhưng làm giảm số trích dẫn. Đã sửa: làm rõ trong system prompt rằng `document_id` là UUID, không phải số thứ tự.
 - Chi phí OpenAI cho 60 lời gọi: không đáng kể so với $6 (gpt-4o-mini, prompt ngắn).
 
-## Cần user quyết định
-- **Có nối `POST /api/chat` qua Supervisor không?** Spec (mục VIII) ghi `/api/chat` "hỏi đáp qua RAG và Supervisor". Nếu nối: mỗi tin nhắn tốn thêm 1 lượt gọi LLM để phân loại (~1s), và response của `/api/chat` phải đổi thành dạng có `type` (rag_answer / quiz / clarification). Hiện để nguyên để không phá API đang dùng.
-
 ## Việc còn thiếu / cần làm tiếp
 
 - Bảng `profiles` (chưa có FK từ `documents.owner_id`).
 - OCR cho PDF scan (spec ghi rõ: để giai đoạn sau).
-- Study Planner Agent (Task 5) — chưa viết dòng nào. Sẽ thêm nhánh `study_planner` vào Supervisor.
+- Lưu lịch sử hội thoại (`chat_sessions`, `chat_messages`) và log `agent_runs` — chưa làm.
+- Planner chưa gắn nhiệm vụ với mục cụ thể trong tài liệu (vd. "đọc mục 4.5, trang 21"); tiêu đề nhiệm vụ còn chung chung.
+- Seed điểm từ `learner_profiles.json` cho demo (5 hồ sơ giả lập) — chưa có script; hiện mastery chỉ có khi làm quiz thật.
 - Frontend — chưa khởi tạo.
 - Đánh giá chất lượng quiz do AI sinh (spec XII.2: >= 90% câu rõ ràng, có căn cứ) — chưa có script; có thể đối chiếu với `quiz_reference.json`.

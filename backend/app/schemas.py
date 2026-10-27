@@ -1,11 +1,11 @@
 """Pydantic schemas cho request/response của API."""
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from app.models import DocumentStatus, QuizDifficulty, QuizTopic
+from app.models import DocumentStatus, PlanItemStatus, PlanStatus, QuizDifficulty, QuizTopic
 
 
 class DocumentUploadResponse(BaseModel):
@@ -30,9 +30,11 @@ class DocumentError(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    question: str = Field(min_length=1, max_length=1000)
-    document_ids: list[UUID] | None = Field(None, description="Chỉ tìm trong các tài liệu này (tuỳ chọn)")
-    top_k: int | None = Field(None, ge=1, le=8, description="Số chunk truy xuất, mặc định theo cấu hình")
+    question: str = Field(
+        min_length=1, max_length=1000, description="Tin nhắn của người học: câu hỏi, yêu cầu tạo quiz hoặc lập kế hoạch"
+    )
+    document_ids: list[UUID] | None = Field(None, description="RAG: chỉ tìm trong các tài liệu này (tuỳ chọn)")
+    top_k: int | None = Field(None, ge=1, le=8, description="RAG: số chunk truy xuất, mặc định theo cấu hình")
 
     @field_validator("question")
     @classmethod
@@ -64,11 +66,53 @@ class SourceOut(BaseModel):
     preview: str
 
 
-class ChatResponse(BaseModel):
+class RagAnswerOut(BaseModel):
     answer: str
     has_enough_evidence: bool
     citations: list[CitationOut]
     sources: list[SourceOut]
+
+
+class QuizCreatedOut(BaseModel):
+    quiz_set_id: UUID
+    title: str
+    topic: str
+    difficulty: str
+    question_count: int
+
+
+class StudyPlanCreatedOut(BaseModel):
+    plan_id: UUID
+    title: str
+    start_date: date
+    end_date: date
+    num_days: int
+    daily_minutes: int
+    focus_topics: list[str]
+    item_count: int
+
+
+ChatResultType = Literal["rag_answer", "quiz", "study_plan", "clarification", "error"]
+ChatIntent = Literal["rag_tutor", "quiz_agent", "study_planner"]
+
+
+class ChatResponse(BaseModel):
+    """Kết quả chung của POST /api/chat. Frontend đọc `type` rồi lấy đúng một trường payload.
+
+    - type = "rag_answer"     -> `rag_answer`
+    - type = "quiz"           -> `quiz` (gọi GET /api/quizzes/{quiz_set_id} để làm bài)
+    - type = "study_plan"     -> `study_plan` (gọi GET /api/study-plans để xem chi tiết)
+    - type = "clarification"  -> chỉ có `message` (hỏi lại thông tin còn thiếu)
+    - type = "error"          -> chỉ có `message`
+    `message` luôn có, là câu ngắn hiển thị được ngay trong khung chat.
+    """
+
+    type: ChatResultType
+    intent: ChatIntent
+    message: str
+    rag_answer: RagAnswerOut | None = None
+    quiz: QuizCreatedOut | None = None
+    study_plan: StudyPlanCreatedOut | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -183,3 +227,67 @@ class LearningSummaryOut(BaseModel):
     recent_attempts: list[AttemptSummaryOut]
     topic_mastery: list[TopicMasteryOut]
     weak_topics: list[str] = Field(description="Chủ đề có mastery dưới ngưỡng, yếu nhất trước")
+
+
+# ---------------------------------------------------------------------------
+# Kế hoạch học tập
+# ---------------------------------------------------------------------------
+
+class StudyPlanGenerateRequest(BaseModel):
+    goal: str = Field(
+        "Ôn tập các chủ đề còn yếu", min_length=1, max_length=500, description="Mục tiêu học tập"
+    )
+    num_days: int = Field(7, ge=1, le=30)
+    daily_minutes: int = Field(ge=10, le=480, description="Thời gian có thể học mỗi ngày (phút) — ràng buộc cứng")
+    start_date: date | None = Field(None, description="Mặc định hôm nay")
+    deadline: date | None = Field(None, description="Hạn hoàn thành (tuỳ chọn); kế hoạch không được kết thúc sau hạn")
+
+
+class StudyPlanItemOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    day_number: int
+    scheduled_date: date
+    position: int
+    topic: str
+    activity_type: str
+    title: str
+    description: str
+    duration_minutes: int
+    status: PlanItemStatus
+    completed_at: datetime | None
+
+
+class StudyPlanDayOut(BaseModel):
+    day_number: int
+    date: date
+    total_minutes: int
+    items: list[StudyPlanItemOut]
+
+
+class StudyPlanOut(BaseModel):
+    id: UUID
+    title: str
+    goal: str
+    summary: str
+    status: PlanStatus
+    num_days: int
+    daily_minutes: int
+    start_date: date
+    end_date: date
+    deadline: date | None
+    focus_topics: list[str]
+    progress: float = Field(description="Tỷ lệ nhiệm vụ đã hoàn thành hoặc bỏ qua, 0..1")
+    created_at: datetime
+    days: list[StudyPlanDayOut]
+
+
+class PlanItemUpdateRequest(BaseModel):
+    status: PlanItemStatus
+
+
+class PlanItemUpdateOut(BaseModel):
+    item: StudyPlanItemOut
+    plan_status: PlanStatus
+    progress: float

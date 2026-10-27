@@ -90,7 +90,11 @@ def ask(client: TestClient, question: str) -> dict:
     response = client.post("/api/chat", json={"question": question})
     if response.status_code != 200:
         _fail(f"POST /api/chat thất bại ({response.status_code}): {response.text[:500]}")
-    return response.json()
+    body = response.json()
+    # /api/chat đi qua Supervisor: câu hỏi kiến thức phải được chuyển tới RAG Tutor.
+    if body["type"] != "rag_answer":
+        _fail(f"Supervisor không chuyển câu hỏi tới RAG Tutor: type={body['type']}, intent={body['intent']}")
+    return body["rag_answer"]
 
 
 def check_in_scope_question(client: TestClient) -> None:

@@ -52,6 +52,14 @@ class Settings(BaseSettings):
     quiz_generation_rounds: int = 2  # lần gọi LLM tối đa để bù câu bị loại khi kiểm tra
     weak_topic_threshold: float = 0.7  # mastery dưới ngưỡng này -> chủ đề cần ôn
 
+    # Study Planner
+    plan_max_days: int = 30
+    plan_min_daily_minutes: int = 10
+    plan_max_daily_minutes: int = 480
+    plan_min_task_minutes: int = 5
+    plan_max_tasks_per_day: int = 4
+    plan_generation_rounds: int = 2  # lần gọi LLM tối đa (lần 2 kèm danh sách lỗi cần sửa)
+
     # Chunking (đơn vị: token)
     chunk_min_tokens: int = 500
     chunk_max_tokens: int = 800

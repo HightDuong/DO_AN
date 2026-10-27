@@ -1,7 +1,7 @@
 """Kích hoạt extension pgvector trên Supabase và tạo các bảng còn thiếu.
 
 Bảng hiện có: documents, document_chunks (Task 1); quiz_sets, quiz_questions, quiz_question_sources,
-quiz_attempts, quiz_responses, user_topic_mastery (Task 4).
+quiz_attempts, quiz_responses, user_topic_mastery (Task 4); study_plans, study_plan_items (Task 5).
 
 Chạy từ thư mục backend/:
     python init_db.py

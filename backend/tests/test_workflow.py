@@ -1,4 +1,5 @@
 """Kiểm thử định tuyến của LangGraph Supervisor (LLM và agent đều được thay bằng bản giả)."""
+from datetime import date
 from types import SimpleNamespace
 from uuid import uuid4
 
@@ -9,10 +10,13 @@ from app.agents.workflow import IntentDecision, heuristic_decision, run_supervis
 from app.services.llm_service import LLMError
 from app.services.quiz_service import QuizGenerationError
 from app.services.rag_service import NOT_ENOUGH_EVIDENCE, RagAnswer
+from app.services.study_planner_service import PlanGenerationError
 
 
-def _decision(intent, topic=None, num=None, difficulty=None) -> IntentDecision:
-    return IntentDecision(intent=intent, topic=topic, num_questions=num, difficulty=difficulty)
+def _decision(intent, **fields) -> IntentDecision:
+    base = {"topic": None, "num_questions": None, "difficulty": None, "num_days": None,
+            "daily_minutes": None, "goal": None}
+    return IntentDecision(intent=intent, **{**base, **fields})
 
 
 @pytest.fixture
@@ -22,14 +26,25 @@ def agents(monkeypatch):
 
     def fake_answer(db, message, owner_id, **kwargs):
         calls.append(("rag_tutor", message))
-        return SimpleNamespace(answer=RagAnswer(answer="Trả lời", citations=[], has_enough_evidence=True))
+        return SimpleNamespace(
+            answer=RagAnswer(answer="Trả lời", citations=[], has_enough_evidence=True),
+            sources=[],
+            used_chunk_ids=set(),
+        )
 
     def fake_quiz(db, owner_id, topic, num_questions, difficulty):
         calls.append(("quiz_agent", topic.value, num_questions, difficulty.value))
-        return SimpleNamespace(id=uuid4(), title="t", topic=topic.value, question_count=num_questions)
+        return SimpleNamespace(id=uuid4(), title="t", topic=topic.value, difficulty=difficulty.value,
+                               question_count=num_questions)
+
+    def fake_plan(db, owner_id, goal, num_days, daily_minutes):
+        calls.append(("study_planner", goal, num_days, daily_minutes))
+        return SimpleNamespace(id=uuid4(), title="k", start_date=date(2026, 11, 1), end_date=date(2026, 11, 7),
+                               num_days=num_days, daily_minutes=daily_minutes, focus_topics=["SQL"], items=[1, 2])
 
     monkeypatch.setattr(wf, "answer_question", fake_answer)
     monkeypatch.setattr(wf, "generate_quiz", fake_quiz)
+    monkeypatch.setattr(wf, "generate_study_plan", fake_plan)
     return calls
 
 
@@ -42,38 +57,67 @@ def _classifier(monkeypatch, decision=None, error=None):
     monkeypatch.setattr(wf, "generate_structured", fake)
 
 
+# ---------------------------------------------------------------------------
+# Định tuyến
+# ---------------------------------------------------------------------------
+
 def test_question_routes_to_rag_tutor(monkeypatch, agents):
     _classifier(monkeypatch, _decision("rag_tutor"))
     state = run_supervisor(None, uuid4(), "ACID là gì?")
-    assert state["intent"] == "rag_tutor"
     assert agents == [("rag_tutor", "ACID là gì?")]
-    assert state["result"]["type"] == "rag_answer"
+    assert state["result"]["type"] == "rag_answer" and state["result"]["intent"] == "rag_tutor"
 
 
 def test_quiz_request_routes_to_quiz_agent_with_parameters(monkeypatch, agents):
-    _classifier(monkeypatch, _decision("quiz_agent", "Giao dịch", 3, "Vận dụng"))
+    _classifier(monkeypatch, _decision("quiz_agent", topic="Giao dịch", num_questions=3, difficulty="Vận dụng"))
     state = run_supervisor(None, uuid4(), "Cho mình 3 câu trắc nghiệm vận dụng về giao dịch")
     assert agents == [("quiz_agent", "Giao dịch", 3, "Vận dụng")]
     assert state["result"]["type"] == "quiz"
 
 
+def test_plan_request_routes_to_study_planner(monkeypatch, agents):
+    _classifier(monkeypatch, _decision("study_planner", num_days=7, daily_minutes=20, goal="Ôn SQL"))
+    state = run_supervisor(None, uuid4(), "Lập kế hoạch 7 ngày, mỗi ngày 20 phút để ôn SQL")
+    assert agents == [("study_planner", "Ôn SQL", 7, 20)]
+    result = state["result"]
+    assert result["type"] == "study_plan" and result["study_plan"]["item_count"] == 2
+    assert "20 phút" in result["message"]
+
+
 def test_quiz_defaults_when_count_and_difficulty_missing(monkeypatch, agents):
-    _classifier(monkeypatch, _decision("quiz_agent", "SQL"))
+    _classifier(monkeypatch, _decision("quiz_agent", topic="SQL"))
     run_supervisor(None, uuid4(), "Tạo đề SQL")
     assert agents == [("quiz_agent", "SQL", wf.DEFAULT_QUIZ_QUESTIONS, "Cơ bản")]
 
 
-def test_quiz_without_topic_asks_for_clarification(monkeypatch, agents):
-    _classifier(monkeypatch, _decision("quiz_agent"))
-    state = run_supervisor(None, uuid4(), "Tạo cho tôi một bài kiểm tra")
-    assert agents == []  # không sinh đề khi chưa biết chủ đề
-    assert state["result"]["type"] == "clarification"
+def test_plan_defaults_days_and_uses_message_as_goal(monkeypatch, agents):
+    _classifier(monkeypatch, _decision("study_planner", daily_minutes=30))
+    run_supervisor(None, uuid4(), "Lên lịch học giúp mình, mỗi ngày 30 phút")
+    assert agents == [("study_planner", "Lên lịch học giúp mình, mỗi ngày 30 phút", wf.DEFAULT_PLAN_DAYS, 30)]
 
 
-def test_each_request_runs_exactly_one_agent(monkeypatch, agents):
-    _classifier(monkeypatch, _decision("rag_tutor"))
-    run_supervisor(None, uuid4(), "GROUP BY là gì?")
-    assert len(agents) == 1
+@pytest.mark.parametrize(
+    "intent, fields",
+    [
+        ("quiz_agent", {}),  # chưa có chủ đề
+        ("quiz_agent", {"topic": "SQL", "num_questions": 50}),  # quá số câu tối đa
+        ("study_planner", {"num_days": 7}),  # chưa có thời gian rảnh mỗi ngày -> không được đoán
+        ("study_planner", {"daily_minutes": 2}),  # ít hơn tối thiểu
+        ("study_planner", {"daily_minutes": 30, "num_days": 90}),  # dài hơn tối đa
+    ],
+)
+def test_missing_or_invalid_parameters_ask_for_clarification(monkeypatch, agents, intent, fields):
+    _classifier(monkeypatch, _decision(intent, **fields))
+    state = run_supervisor(None, uuid4(), "...")
+    assert agents == []  # không gọi agent khi thiếu thông tin
+    assert state["result"]["type"] == "clarification" and state["result"]["intent"] == intent
+
+
+@pytest.mark.parametrize("intent", ["rag_tutor", "quiz_agent", "study_planner"])
+def test_each_request_runs_exactly_one_agent(monkeypatch, agents, intent):
+    _classifier(monkeypatch, _decision(intent, topic="SQL", daily_minutes=20))
+    run_supervisor(None, uuid4(), "...")
+    assert [c[0] for c in agents] == [intent]
 
 
 def test_falls_back_to_keywords_when_classifier_llm_fails(monkeypatch, agents):
@@ -83,15 +127,37 @@ def test_falls_back_to_keywords_when_classifier_llm_fails(monkeypatch, agents):
     assert agents == [("quiz_agent", "SQL", 4, "Cơ bản")]
 
 
-def test_agent_error_is_returned_not_raised(monkeypatch):
-    _classifier(monkeypatch, _decision("quiz_agent", "SQL"))
+def test_fallback_routes_plan_requests(monkeypatch, agents):
+    _classifier(monkeypatch, error=LLMError("timeout"))
+    run_supervisor(None, uuid4(), "Lập kế hoạch ôn tập 1 tuần, mỗi ngày nửa tiếng")
+    assert agents[0][0] == "study_planner" and agents[0][2:] == (7, 30)
+
+
+# ---------------------------------------------------------------------------
+# Lỗi của agent
+# ---------------------------------------------------------------------------
+
+def test_quiz_error_is_returned_not_raised(monkeypatch):
+    _classifier(monkeypatch, _decision("quiz_agent", topic="SQL"))
 
     def failing_quiz(*a, **k):
         raise QuizGenerationError("Chưa có tài liệu")
 
     monkeypatch.setattr(wf, "generate_quiz", failing_quiz)
     state = run_supervisor(None, uuid4(), "Tạo đề SQL")
-    assert state["result"] == {"type": "error", "agent": "quiz_agent", "message": "Chưa có tài liệu"}
+    assert state["result"] == {"type": "error", "intent": "quiz_agent", "message": "Chưa có tài liệu"}
+
+
+@pytest.mark.parametrize("error", [PlanGenerationError("vượt giới hạn"), LLMError("timeout")])
+def test_planner_error_is_returned_not_raised(monkeypatch, error):
+    _classifier(monkeypatch, _decision("study_planner", daily_minutes=20))
+
+    def failing_plan(*a, **k):
+        raise error
+
+    monkeypatch.setattr(wf, "generate_study_plan", failing_plan)
+    state = run_supervisor(None, uuid4(), "Lập kế hoạch")
+    assert state["result"]["type"] == "error" and state["result"]["intent"] == "study_planner"
 
 
 def test_rag_refusal_is_passed_through(monkeypatch):
@@ -100,12 +166,19 @@ def test_rag_refusal_is_passed_through(monkeypatch):
         wf,
         "answer_question",
         lambda *a, **k: SimpleNamespace(
-            answer=RagAnswer(answer=NOT_ENOUGH_EVIDENCE, citations=[], has_enough_evidence=False)
+            answer=RagAnswer(answer=NOT_ENOUGH_EVIDENCE, citations=[], has_enough_evidence=False),
+            sources=[],
+            used_chunk_ids=set(),
         ),
     )
     state = run_supervisor(None, uuid4(), "MongoDB sharding?")
-    assert state["result"]["has_enough_evidence"] is False
+    assert state["result"]["rag_answer"]["has_enough_evidence"] is False
+    assert state["result"]["message"] == NOT_ENOUGH_EVIDENCE
 
+
+# ---------------------------------------------------------------------------
+# Phân loại dự phòng bằng từ khoá
+# ---------------------------------------------------------------------------
 
 class TestHeuristic:
     @pytest.mark.parametrize(
@@ -128,6 +201,20 @@ class TestHeuristic:
         decision = heuristic_decision(message)
         assert decision.intent == "quiz_agent" and decision.topic == topic
 
+    @pytest.mark.parametrize(
+        "message, days, minutes",
+        [
+            ("Lập kế hoạch học 7 ngày, mỗi ngày 20 phút", 7, 20),
+            ("Lên lịch ôn tập 2 tuần, mỗi ngày 1 giờ", 14, 60),
+            ("Lộ trình 10 ngày, học 1,5 tiếng mỗi ngày", 10, 90),
+            ("Lập kế hoạch học giúp mình", None, None),
+        ],
+    )
+    def test_plan_requests_extract_days_and_minutes(self, message, days, minutes):
+        decision = heuristic_decision(message)
+        assert decision.intent == "study_planner"
+        assert (decision.num_days, decision.daily_minutes) == (days, minutes)
+
 
 def test_graph_has_no_cycles_and_low_recursion_limit():
     edges = {(e.source, e.target) for e in wf.workflow.get_graph().edges}
@@ -135,7 +222,9 @@ def test_graph_has_no_cycles_and_low_recursion_limit():
         ("__start__", "classify_intent"),
         ("classify_intent", "rag_tutor"),
         ("classify_intent", "quiz_agent"),
+        ("classify_intent", "study_planner"),
         ("rag_tutor", "__end__"),
         ("quiz_agent", "__end__"),
+        ("study_planner", "__end__"),
     }
     assert wf.RECURSION_LIMIT <= 5

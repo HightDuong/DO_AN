@@ -1,5 +1,8 @@
 """Đánh giá RAG Tutor trên bộ mock data: 50 câu rag_eval + 10 câu negative_eval.
 
+Câu hỏi được gửi qua POST /api/chat, tức là đi qua Supervisor trước: script đếm cả số câu hỏi
+kiến thức bị phân loại nhầm sang Quiz Agent / Study Planner.
+
 Chạy từ thư mục backend/ (sau khi đã nạp corpus, vd. bằng scripts/test_rag.py):
     python scripts/evaluate_rag.py            # tiếp tục từ lần chạy trước nếu có
     python scripts/evaluate_rag.py --reset    # chạy lại từ đầu
@@ -54,7 +57,15 @@ def ask(client: TestClient, question: str) -> dict | None:
     if response.status_code != 200:
         print(f"    LỖI HTTP {response.status_code}: {response.text[:200]}")
         return None
-    return response.json()
+    body = response.json()
+    if body["type"] == "rag_answer":
+        return {**body["rag_answer"], "routed_to": "rag_tutor"}
+    if body["type"] == "error":
+        print(f"    LỖI agent: {body['message']}")
+        return None
+    # Bị Supervisor chuyển nhầm sang agent khác: coi như không trả lời được.
+    return {"answer": body["message"], "has_enough_evidence": False, "citations": [], "sources": [],
+            "routed_to": body["intent"]}
 
 
 def run_answerable(client: TestClient, items: list, file_to_doc: dict, progress: dict) -> None:
@@ -78,6 +89,7 @@ def run_answerable(client: TestClient, items: list, file_to_doc: dict, progress:
             "has_enough_evidence": body["has_enough_evidence"],
             "recall_hit": recall_hit,
             "n_citations": len(body["citations"]),
+            "routed_to": body["routed_to"],
             "answer": body["answer"][:400],
         }
         save_progress(progress)
@@ -96,6 +108,7 @@ def run_negative(client: TestClient, items: list, progress: dict) -> None:
             "question": item["question"],
             "has_enough_evidence": body["has_enough_evidence"],
             "n_citations": len(body["citations"]),
+            "routed_to": body["routed_to"],
             "answer": body["answer"][:200],
         }
         save_progress(progress)
@@ -120,6 +133,8 @@ def report(progress: dict, n_rag: int, n_neg: int) -> None:
     print(f"Tỷ lệ trả lời câu trả lời được:   {len(answered)}/{n_rag} = {len(answered) / n_rag:.1%}")
     print(f"Có trích dẫn hợp lệ khi trả lời:  {cited}/{len(answered) or 1} = {cited / (len(answered) or 1):.1%}   (mục tiêu ≥ 90%)")
     print(f"Từ chối đúng câu không có căn cứ: {refused}/{n_neg} = {refused / n_neg:.1%}")
+    misrouted = {k: v["routed_to"] for k, v in {**rag, **neg}.items() if v.get("routed_to", "rag_tutor") != "rag_tutor"}
+    print(f"Supervisor chuyển nhầm khỏi RAG:  {len(misrouted)}/{n_rag + n_neg} {misrouted or ''}")
 
     by_category: dict[str, list[int]] = {}
     for v in rag.values():

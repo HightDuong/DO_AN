@@ -1,12 +1,13 @@
 """SQLAlchemy models (spec.md mục V.2): tài liệu/chunk, quiz, kết quả làm bài và mức độ thành thạo."""
 import enum
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
+    Date,
     DateTime,
     Enum,
     Float,
@@ -251,3 +252,85 @@ class UserTopicMastery(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
     )
+
+
+# ---------------------------------------------------------------------------
+# Kế hoạch học tập
+# ---------------------------------------------------------------------------
+
+class PlanStatus(str, enum.Enum):
+    active = "active"
+    completed = "completed"
+    archived = "archived"  # bị thay bằng kế hoạch mới hơn
+
+
+class PlanItemStatus(str, enum.Enum):
+    pending = "pending"
+    completed = "completed"
+    skipped = "skipped"
+
+
+class PlanActivity(str, enum.Enum):
+    reading = "Đọc lý thuyết"
+    review = "Ôn tập"
+    quiz = "Làm quiz"
+    sql_practice = "Thực hành SQL"
+    recap = "Tổng kết"
+
+
+class StudyPlan(Base):
+    __tablename__ = "study_plans"
+    __table_args__ = (
+        CheckConstraint("num_days > 0", name="ck_study_plans_num_days"),
+        CheckConstraint("daily_minutes > 0", name="ck_study_plans_daily_minutes"),
+        CheckConstraint("end_date >= start_date", name="ck_study_plans_dates"),
+        CheckConstraint("status IN ('active', 'completed', 'archived')", name="ck_study_plans_status"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    goal: Mapped[str] = mapped_column(Text, nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)  # lý do phân bổ, do Planner viết
+    num_days: Mapped[int] = mapped_column(Integer, nullable=False)
+    daily_minutes: Mapped[int] = mapped_column(Integer, nullable=False)  # giới hạn người học cung cấp
+    start_date: Mapped[date] = mapped_column(Date, nullable=False)
+    end_date: Mapped[date] = mapped_column(Date, nullable=False)
+    deadline: Mapped[date | None] = mapped_column(Date)
+    focus_topics: Mapped[list[str]] = mapped_column(JSONB, nullable=False)  # chủ đề yếu lúc lập kế hoạch
+    status: Mapped[str] = mapped_column(Text, nullable=False, server_default=PlanStatus.active.value)
+    created_at: Mapped[datetime] = _created_at()
+
+    items: Mapped[list["StudyPlanItem"]] = relationship(
+        back_populates="plan",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="(StudyPlanItem.day_number, StudyPlanItem.position)",
+    )
+
+
+class StudyPlanItem(Base):
+    __tablename__ = "study_plan_items"
+    __table_args__ = (
+        UniqueConstraint("plan_id", "day_number", "position", name="uq_study_plan_items_day_position"),
+        CheckConstraint("day_number > 0", name="ck_study_plan_items_day"),
+        CheckConstraint("duration_minutes > 0", name="ck_study_plan_items_duration"),
+        CheckConstraint("status IN ('pending', 'completed', 'skipped')", name="ck_study_plan_items_status"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    plan_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("study_plans.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    day_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    scheduled_date: Mapped[date] = mapped_column(Date, nullable=False)
+    position: Mapped[int] = mapped_column(Integer, nullable=False)  # thứ tự trong ngày
+    topic: Mapped[str] = mapped_column(Text, nullable=False)
+    activity_type: Mapped[str] = mapped_column(Text, nullable=False)
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    duration_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(Text, nullable=False, server_default=PlanItemStatus.pending.value)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    plan: Mapped[StudyPlan] = relationship(back_populates="items")
