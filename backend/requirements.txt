@@ -11,3 +11,4 @@ pymupdf
 tiktoken
 httpx
 google-genai
+pytest

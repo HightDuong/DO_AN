@@ -5,29 +5,18 @@ Chunk tài liệu và câu hỏi PHẢI dùng cùng model + cùng số chiều; 
 import logging
 import math
 import time
-from functools import lru_cache
 
 import httpx
-from google import genai
 from google.genai import errors, types
 
 from app.config import settings
+from app.services.gemini_client import RETRYABLE_STATUS, get_client
 
 log = logging.getLogger(__name__)
-
-_RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 
 
 class EmbeddingError(Exception):
     """Không tạo được embedding sau khi đã thử lại."""
-
-
-@lru_cache(maxsize=1)
-def _client() -> genai.Client:
-    return genai.Client(
-        api_key=settings.gemini_api_key,
-        http_options=types.HttpOptions(timeout=settings.embedding_timeout_seconds * 1000),
-    )
 
 
 def _normalize(vector: list[float]) -> list[float]:
@@ -41,7 +30,7 @@ def _embed_batch(texts: list[str], task_type: str) -> list[list[float]]:
     max_retries = settings.embedding_max_retries
     for attempt in range(max_retries + 1):
         try:
-            response = _client().models.embed_content(
+            response = get_client().models.embed_content(
                 model=settings.embedding_model, contents=texts, config=config
             )
             vectors = [e.values for e in response.embeddings or []]
@@ -49,7 +38,7 @@ def _embed_batch(texts: list[str], task_type: str) -> list[list[float]]:
                 raise EmbeddingError("Gemini trả về số lượng hoặc số chiều embedding không đúng.")
             return [_normalize(v) for v in vectors]
         except errors.APIError as exc:
-            if exc.code not in _RETRYABLE_STATUS or attempt == max_retries:
+            if exc.code not in RETRYABLE_STATUS or attempt == max_retries:
                 raise EmbeddingError(f"Gemini embedding lỗi ({exc.code}): {exc.message}") from exc
             reason = f"HTTP {exc.code}"
         except httpx.TransportError as exc:  # timeout, mất kết nối

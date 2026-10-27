@@ -28,6 +28,19 @@ class Settings(BaseSettings):
     embedding_max_retries: int = 5
     embedding_timeout_seconds: int = 60
 
+    # LLM trả lời (RAG Tutor)
+    llm_model: str = "gemini-3.5-flash"
+    llm_temperature: float = 0.2
+    llm_max_retries: int = 2
+    llm_timeout_seconds: int = 60
+
+    # Truy xuất
+    retrieval_top_k: int = 5
+    # Độ tương đồng cosine tối thiểu để coi một chunk là liên quan (0..1).
+    # Đo trên giáo trình CSDL thật (gemini-embedding-001, 768 chiều): câu hỏi trong giáo trình có
+    # top-1 >= 0.73, câu ngoài phạm vi <= 0.62. Cần hiệu chỉnh lại khi có bộ câu hỏi đánh giá đầy đủ.
+    retrieval_min_similarity: float = 0.65
+
     # Chunking (đơn vị: token)
     chunk_min_tokens: int = 500
     chunk_max_tokens: int = 800
