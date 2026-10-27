@@ -28,11 +28,16 @@ class Settings(BaseSettings):
     embedding_max_retries: int = 5
     embedding_timeout_seconds: int = 60
 
-    # LLM trả lời (RAG Tutor)
+    # LLM trả lời (RAG Tutor). "gemini" | "openai" — chỉ ảnh hưởng bước sinh câu trả lời,
+    # embedding luôn dùng Gemini (chunk đã index bằng gemini-embedding-001, không đổi được).
+    llm_provider: str = "gemini"
     llm_model: str = "gemini-3.5-flash"
     llm_temperature: float = 0.2
     llm_max_retries: int = 2
     llm_timeout_seconds: int = 60
+
+    openai_api_key: str | None = None
+    openai_model: str = "gpt-4o-mini"
 
     # Truy xuất
     retrieval_top_k: int = 5

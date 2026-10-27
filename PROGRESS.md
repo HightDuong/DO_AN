@@ -9,7 +9,7 @@ Cập nhật file này sau mỗi task hoàn thành.
 | Bước (theo CLAUDE.md) | Trạng thái |
 |---|---|
 | 1. Database schema + pipeline nạp PDF | ✅ Xong (Task 1, 2) |
-| 2. RAG Tutor Agent | 🟡 Task 3 xong, chờ user đánh giá chất lượng câu trả lời |
+| 2. RAG Tutor Agent | ✅ Task 3 xong, đã đánh giá bằng bộ 60 câu mock data — xem bên dưới |
 | 3. Supervisor + Quiz Agent | ⬜ Chưa bắt đầu |
 | 4. Study Planner Agent | ⬜ Chưa bắt đầu |
 | 5. Frontend | ⬜ Chưa bắt đầu |
@@ -22,7 +22,10 @@ Cập nhật file này sau mỗi task hoàn thành.
 - **DB: Supabase qua Connection Pooler** (`*.pooler.supabase.com:6543`), không dùng host `db.<ref>.supabase.co:5432` trực tiếp — host trực tiếp chỉ có IPv6, máy dev không kết nối được (lỗi "could not translate host name").
 - **Không dùng Docker** cho DB — máy dev cấu hình yếu, dùng Supabase Cloud thay thế. `CLAUDE.md` mục 4 vẫn còn ghi lệnh Docker, cần sửa khi làm tới bước deploy.
 - **File storage: Supabase Storage**, bucket `documents` (private), tạo tự động ở lần upload đầu.
-- **LLM trả lời: `gemini-3.5-flash`** (đổi qua `LLM_MODEL` trong `.env`). Không dùng `gemini-1.5-flash`/`2.0-flash` (không còn trong API), `gemini-2.5-flash` (404 "no longer available to new users"), `gemini-3.8-flash`/`3.7-flash`/`flash-latest` (timeout 504 liên tục ở gói free, đo ngày 2026-10-27). `gemini-3.5-flash` ~5s/lời gọi; dự phòng: `gemini-3.5-flash-lite` (~1.5s, chất lượng thấp hơn).
+- **LLM trả lời: hỗ trợ 2 provider qua `LLM_PROVIDER` (`gemini` | `openai`), mặc định code là `gemini`.**
+  - Gemini: model `gemini-3.5-flash` (đổi qua `LLM_MODEL`). Không dùng `gemini-1.5-flash`/`2.0-flash` (không còn trong API), `gemini-2.5-flash` (404 "no longer available to new users"), `gemini-3.8-flash`/`3.7-flash`/`flash-latest` (timeout 504 liên tục ở gói free, đo ngày 2026-10-27). `gemini-3.5-flash` ~5s/lời gọi; dự phòng `gemini-3.5-flash-lite` (~1.5s, chất lượng thấp hơn, quota riêng).
+  - **Gói Gemini free-tier giới hạn 20 lượt gọi `generate_content`/ngày** (dùng chung cho mọi model flash, Google trả lỗi 429 kèm thời gian chờ reset ~24h tính từ request đầu ngày). Đây là giới hạn nghiêm trọng cho việc dev/test lặp lại — **cần tính đến khi làm Quiz Agent và Study Planner** (sẽ cộng dồn số lượt gọi).
+  - **OpenAI (`openai`, model `OPENAI_MODEL` mặc định `gpt-4o-mini`)**: dùng `client.chat.completions.parse` với Pydantic schema, quota/giá riêng, không bị chung giới hạn với Gemini. **Hiện `.env` đang đặt `LLM_PROVIDER=openai`** (đổi tạm ngày 2026-10-27 vì Gemini hết quota giữa lúc chạy bộ đánh giá 60 câu — theo yêu cầu user, dùng key OpenAI đã có sẵn). Đây là **ngoại lệ có chủ đích** với rule "chỉ 1 LLM provider" (CLAUDE.md mục 2) — embedding vẫn luôn dùng Gemini (`gemini-embedding-001`), chỉ bước sinh câu trả lời có thể đổi provider. **Cần quyết định provider nào là mặc định lâu dài** (xem việc cần làm tiếp).
 - **Ngưỡng tương đồng `RETRIEVAL_MIN_SIMILARITY = 0.65`**: đo trên giáo trình thật, câu trong giáo trình top-1 ≥ 0.73, câu ngoài phạm vi ≤ 0.62. Dưới ngưỡng → trả "chưa đủ bằng chứng" mà không gọi LLM (tiết kiệm quota).
 
 ## Việc đã làm
@@ -66,6 +69,30 @@ Cập nhật file này sau mỗi task hoàn thành.
   - Câu ngoài phạm vi (thủ đô Pháp, MongoDB sharding) và câu prompt injection → từ chối ở bước ngưỡng, không gọi LLM.
 - Chưa làm (ngoài phạm vi Task 3): tool `get_document_metadata` (metadata đã có sẵn trong kết quả `search_knowledge`), lưu lịch sử `chat_sessions`/`chat_messages`, LangGraph workflow.
 - Lưu ý: chunk chỉ lưu trang bắt đầu, nên khi nội dung vắt sang trang sau, LLM đôi khi trích trang kế tiếp → bị loại (an toàn nhưng có thể mất trích dẫn đúng). Theo dõi khi có bộ đánh giá.
+
+### Đánh giá bằng bộ mock data CSDL (2026-10-27)
+Dữ liệu: `StudyMate_AI_Bo_mock_data_CSDL/` (user chuẩn bị) — corpus 3 PDF (`GT_Co_so_du_lieu`, `BT_SQL_Bai_tap_va_loi_giai`, `CD_Giao_dich_va_ACID`, nạp từ `sample_docs/`), `data/rag_eval.json` (50 câu có nguồn chuẩn), `data/negative_eval.json` (10 câu cần từ chối).
+
+Script (chưa commit, nằm ở scratchpad — xem "Việc còn thiếu" để quyết định có đưa vào repo không):
+- Nạp lại data: dọn document cũ của `DEV_USER_ID` (xoá 2 tài liệu rác từ lúc test tay trước đó), upload đúng 3 PDF corpus (31+16+7 = 54 chunk).
+- Gọi `POST /api/chat` cho cả 60 câu qua `TestClient`, lưu tiến độ ra file JSON sau mỗi câu (bài học: lần đầu viết script chỉ in kết quả ở cuối, mất hết dữ liệu khi hết quota giữa chừng — đã sửa).
+
+**Kết quả (LLM = OpenAI `gpt-4o-mini`, embedding = Gemini như thường lệ):**
+| Chỉ số | Kết quả | Mục tiêu spec (mục XII.1) |
+|---|---|---|
+| Recall@5 (trang vàng nằm trong top-5) | **45/50 = 90%** | ≥ 80% ✅ |
+| Tỷ lệ trả lời (có đủ bằng chứng) trên 50 câu trả lời được | 48/50 = 96% | — |
+| Tỷ lệ có trích dẫn hợp lệ khi trả lời | 48/48 = 100% | ≥ 90% ✅ |
+| Tỷ lệ từ chối đúng trên 10 câu không thể trả lời | **10/10 = 100%** | — |
+
+- **5 câu recall miss**: 2 câu hỏi về số liệu cụ thể trong bảng ví dụ (RAG-06, RAG-08 — nghi do chunk chứa bảng/code chưa tách tốt, cần xem lại khi có thời gian), 3 câu thuộc "Diễn đạt khác"/"Giải thích" (RAG-12, RAG-42, RAG-50 — đúng loại khó mà bộ eval cố ý đưa vào).
+- **2 câu bị từ chối oan** (RAG-15, RAG-39): cả hai đều cần áp quy tắc chung nêu trong nguồn vào một tình huống cụ thể được hỏi (vd. nguồn nói chung về ràng buộc `RESTRICT`, câu hỏi hỏi riêng về `SV01`). Model chọn từ chối thay vì suy luận — **đúng chủ đích thiết kế** (thà từ chối còn hơn suy đoán), nhưng là ranh giới cần theo dõi khi tinh chỉnh prompt.
+- **Phát hiện phụ**: vài lần LLM nhầm `document_id` với số thứ tự `so="N"` của thẻ `<nguon>` trong prompt → bị `validate_citations` loại đúng, không lọt ra ngoài, nhưng làm giảm số trích dẫn. Đã sửa: làm rõ trong system prompt rằng `document_id` là UUID, không phải số thứ tự.
+- Chi phí OpenAI cho 60 lời gọi: không đáng kể so với $6 (gpt-4o-mini, prompt ngắn).
+
+## Cần user quyết định
+- **Provider LLM mặc định lâu dài**: giữ `LLM_PROVIDER=openai` (dùng $6 credit, không bị giới hạn 20 lượt/ngày) hay quay về `gemini` (miễn phí nhưng giới hạn 20 lượt/ngày, sẽ là nút thắt khi làm Quiz Agent/Study Planner cần gọi LLM nhiều hơn)? Hiện `.env` đang để `openai`.
+- Có muốn đưa `backend/scripts/test_rag.py` (đã có, chạy qua) và script đánh giá 60 câu (đang ở scratchpad, chưa commit) thành công cụ chính thức trong repo không?
 
 ## Việc còn thiếu / cần làm tiếp
 

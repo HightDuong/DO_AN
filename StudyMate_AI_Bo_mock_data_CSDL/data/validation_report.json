@@ -1,0 +1,233 @@
+{
+  "sql_checks": [
+    {
+      "task": "BT-01",
+      "status": "passed",
+      "engine": "SQLite - common SQL subset",
+      "rows": [
+        [
+          "SV01",
+          "An"
+        ],
+        [
+          "SV02",
+          "Binh"
+        ],
+        [
+          "SV05",
+          "Ha"
+        ]
+      ]
+    },
+    {
+      "task": "BT-02",
+      "status": "passed",
+      "engine": "SQLite - common SQL subset",
+      "rows": [
+        [
+          "SV02",
+          7.5
+        ],
+        [
+          "SV04",
+          5
+        ]
+      ]
+    },
+    {
+      "task": "BT-03",
+      "status": "passed",
+      "engine": "SQLite - common SQL subset",
+      "rows": [
+        [
+          "SV04",
+          "Dung"
+        ]
+      ]
+    },
+    {
+      "task": "BT-04",
+      "status": "passed",
+      "engine": "SQLite - common SQL subset",
+      "rows": [
+        [
+          8,
+          59.0,
+          7.375,
+          5,
+          9
+        ]
+      ]
+    },
+    {
+      "task": "BT-05",
+      "status": "passed",
+      "engine": "SQLite - common SQL subset",
+      "rows": [
+        [
+          "CSDL",
+          3
+        ],
+        [
+          "LT",
+          2
+        ],
+        [
+          "SQL",
+          3
+        ]
+      ]
+    },
+    {
+      "task": "BT-06",
+      "status": "passed",
+      "engine": "SQLite - common SQL subset",
+      "rows": [
+        [
+          "CSDL",
+          7.666666666666667
+        ]
+      ]
+    },
+    {
+      "task": "BT-07",
+      "status": "passed",
+      "engine": "SQLite - common SQL subset",
+      "rows": [
+        [
+          "CSDL",
+          2,
+          8.5
+        ],
+        [
+          "SQL",
+          2,
+          8.25
+        ]
+      ]
+    },
+    {
+      "task": "BT-08",
+      "status": "passed",
+      "engine": "SQLite - common SQL subset",
+      "rows": [
+        [
+          "SV01",
+          "An",
+          8
+        ],
+        [
+          "SV02",
+          "Binh",
+          6
+        ],
+        [
+          "SV03",
+          "Chi",
+          9
+        ]
+      ]
+    },
+    {
+      "task": "BT-09",
+      "status": "passed",
+      "engine": "SQLite - common SQL subset",
+      "rows": [
+        [
+          "SV05",
+          "Ha"
+        ]
+      ]
+    },
+    {
+      "task": "BT-10",
+      "status": "passed",
+      "engine": "SQLite - common SQL subset",
+      "rows": [
+        [
+          "SV01",
+          2
+        ],
+        [
+          "SV02",
+          2
+        ],
+        [
+          "SV03",
+          2
+        ],
+        [
+          "SV04",
+          2
+        ],
+        [
+          "SV05",
+          0
+        ]
+      ]
+    },
+    {
+      "task": "BT-11",
+      "status": "passed",
+      "engine": "SQLite - common SQL subset",
+      "rows": [
+        [
+          "SV01",
+          8
+        ],
+        [
+          "SV02",
+          6
+        ],
+        [
+          "SV03",
+          9
+        ],
+        [
+          "SV04",
+          null
+        ],
+        [
+          "SV05",
+          null
+        ]
+      ]
+    },
+    {
+      "task": "BT-12",
+      "status": "passed",
+      "scope": "rollback and restored seed counts"
+    },
+    {
+      "case": "PK duplicate",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case": "FK missing",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case": "CHECK range",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case": "NOT NULL",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case": "RESTRICT",
+      "status": "rejected_as_expected"
+    }
+  ],
+  "evidence_quotes": "All 50 answerable questions checked against source text",
+  "limitations": [
+    "No StudyMate retrieval pipeline execution",
+    "No PostgreSQL server concurrency test"
+  ],
+  "pdf_page_counts": {
+    "GT_Co_so_du_lieu.pdf": 30,
+    "BT_SQL_Bai_tap_va_loi_giai.pdf": 15,
+    "CD_Giao_dich_va_ACID.pdf": 6,
+    "KT_Demo_RAG_Quiz_Ho_so.pdf": 32
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "title": "1. Nạp tài liệu và kiểm tra nguồn",
+    "action": "Nạp 3 PDF GT, BT, CD; đợi trạng thái sẵn sàng theo ứng dụng. Mở danh sách tài liệu và một đoạn trích của GT-3.2.",
+    "expected": "Có văn bản tiếng Việt trích xuất được, metadata tên tài liệu/trang/mục, không dùng PDF kiểm thử làm nguồn.",
+    "check": "Ghi số tài liệu và số chunk thực tế; không giả định các con số chunk trước khi chạy pipeline."
+  },
+  {
+    "title": "2. Hỏi có căn cứ và mở trích dẫn",
+    "action": "Hỏi: “So sánh khóa chính và khóa ngoại. Vì sao KetQua.MaSV không được NULL?”",
+    "expected": "Câu trả lời nêu vai trò, tính duy nhất, quy tắc NULL tổng quát và ngoại lệ do khóa chính ghép; nguồn GT-3.2.",
+    "check": "Mở trang trích dẫn để kiểm tra nội dung thật. Không chấp nhận câu “mọi khóa ngoại đều không được NULL”."
+  },
+  {
+    "title": "3. Từ chối câu ngoài phạm vi",
+    "action": "Hỏi NEG-03 về B+ tree, sau đó NEG-10 về ngày sinh SV01.",
+    "expected": "Thông báo chưa có đủ căn cứ, chỉ rõ thiếu nội dung hoặc dữ liệu, không bịa câu trả lời hay trang nguồn.",
+    "check": "Chấm độc lập với câu trả lời có nguồn. Đây là kiểm thử thiếu bằng chứng, không phải khẳng định chủ đề không tồn tại ngoài đời."
+  },
+  {
+    "title": "4. Tạo quiz SQL và chấm",
+    "action": "Yêu cầu: “Tạo 5 câu trắc nghiệm SQL, mỗi câu 4 lựa chọn, một đáp án đúng, giải thích và nguồn. Gồm WHERE/HAVING, NULL, hàm gộp và LEFT JOIN.”",
+    "expected": "Câu hỏi bám nguồn, đáp án duy nhất. Người demo cố ý trả lời sai 2 câu để tạo dữ liệu kết quả.",
+    "check": "Dùng QUIZ-16 đến QUIZ-20 để tham khảo chất lượng. Không yêu cầu mô hình sao chép nguyên văn quiz mẫu."
+  },
+  {
+    "title": "5. Cá nhân hóa kế hoạch học",
+    "action": "Nạp hồ sơ HS01: mô hình quan hệ 90%, SQL 60%, giao dịch 50%, 20 phút/ngày. Hỏi: “Tôi nên học gì trong ba ngày tới?”",
+    "expected": "Ưu tiên lỗi SQL và giao dịch, dẫn mục và bài phù hợp; tổng thời lượng mỗi ngày không quá 20 phút.",
+    "check": "Điểm là số đúng trên 10 câu trong từng chủ đề, không gọi là xác suất hiểu biết. So sánh thêm HS04 chỉ có 10 phút/ngày."
+  },
+  {
+    "title": "6. Tổng hợp nhiều tài liệu và bộ lọc",
+    "action": "Hỏi RAG-38 với GT+CD; mở nguồn cả hai. Tiếp theo chỉ chọn CD và hỏi RAG-19. Cuối cùng chỉ chọn BT và hỏi RAG-01.",
+    "expected": "Lượt đầu dùng nguồn GT-5.1 và CD-1; lượt hai chỉ trích CD-1; lượt ba chưa đủ căn cứ định nghĩa CSDL trong BT nên cần từ chối.",
+    "check": "Truyền document_ids thực do hệ thống cấp sau upload. Không dùng GT/BT/CD làm UUID. Tên trường API cụ thể phải theo mã nguồn đang có."
+  }
+]

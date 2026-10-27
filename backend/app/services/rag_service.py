@@ -128,8 +128,9 @@ QUY TẮC BẮT BUỘC:
 4. Nếu đủ thông tin: đặt has_enough_evidence = true, trả lời bằng tiếng Việt, rõ ràng, có giải thích
    hoặc ví dụ nếu nguồn có. Không thêm chi tiết không có trong nguồn.
 5. Mỗi ý chính phải có ít nhất một trích dẫn. Trong citations, chép NGUYÊN VĂN document_id,
-   document_title, page_number, section từ thẻ nguồn tương ứng; quote là một đoạn ngắn chép y nguyên
-   từ noi_dung của nguồn đó (không diễn giải lại).
+   document_title, page_number, section từ thẻ nguồn tương ứng (document_id là một UUID dài, KHÔNG
+   phải số thứ tự "so" của thẻ <nguon>); quote là một đoạn ngắn chép y nguyên từ noi_dung của nguồn đó
+   (không diễn giải lại).
 6. Tuyệt đối không bịa tên tài liệu, số trang hay mục.
 """
 
@@ -151,7 +152,7 @@ def _build_prompt(question: str, chunks: list[RetrievedChunk]) -> str:
     return "\n\n".join(parts) + f"\n\n<cau_hoi>\n{question}\n</cau_hoi>"
 
 
-def _generate_answer(prompt: str) -> RagAnswer:
+def _call_gemini(prompt: str) -> RagAnswer:
     config = types.GenerateContentConfig(
         system_instruction=SYSTEM_PROMPT,
         temperature=settings.llm_temperature,
@@ -159,25 +160,68 @@ def _generate_answer(prompt: str) -> RagAnswer:
         response_schema=RagAnswer,
         http_options=types.HttpOptions(timeout=settings.llm_timeout_seconds * 1000),
     )
+    try:
+        response = get_client().models.generate_content(model=settings.llm_model, contents=prompt, config=config)
+    except errors.APIError as exc:
+        retryable = exc.code in RETRYABLE_STATUS
+        raise _ProviderCallError(f"Gemini lỗi ({exc.code}): {exc.message}", retryable) from exc
+    except httpx.TransportError as exc:
+        raise _ProviderCallError(f"Không kết nối được Gemini: {exc}", retryable=True) from exc
+    if not isinstance(response.parsed, RagAnswer):
+        raise _ProviderCallError("Gemini không trả về JSON đúng schema.", retryable=True)
+    return response.parsed
+
+
+def _call_openai(prompt: str) -> RagAnswer:
+    import openai  # import trễ: chỉ cần khi llm_provider=openai
+
+    if not settings.openai_api_key:
+        raise LLMError("llm_provider=openai nhưng OPENAI_API_KEY chưa đặt trong .env.")
+    client = openai.OpenAI(api_key=settings.openai_api_key, timeout=settings.llm_timeout_seconds)
+    try:
+        response = client.chat.completions.parse(
+            model=settings.openai_model,
+            temperature=settings.llm_temperature,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
+            ],
+            response_format=RagAnswer,
+        )
+    except openai.APITimeoutError as exc:
+        raise _ProviderCallError(f"OpenAI timeout: {exc}", retryable=True) from exc
+    except openai.APIStatusError as exc:
+        retryable = exc.status_code in RETRYABLE_STATUS
+        raise _ProviderCallError(f"OpenAI lỗi ({exc.status_code}): {exc.message}", retryable) from exc
+    parsed = response.choices[0].message.parsed
+    if not isinstance(parsed, RagAnswer):
+        refusal = response.choices[0].message.refusal
+        raise _ProviderCallError(f"OpenAI không trả về JSON đúng schema (refusal={refusal!r}).", retryable=True)
+    return parsed
+
+
+class _ProviderCallError(Exception):
+    def __init__(self, message: str, retryable: bool):
+        super().__init__(message)
+        self.retryable = retryable
+
+
+_PROVIDERS = {"gemini": _call_gemini, "openai": _call_openai}
+
+
+def _generate_answer(prompt: str) -> RagAnswer:
+    call = _PROVIDERS.get(settings.llm_provider)
+    if call is None:
+        raise LLMError(f"llm_provider không hợp lệ: {settings.llm_provider!r} (chỉ nhận gemini/openai).")
+
     max_retries = settings.llm_max_retries
     for attempt in range(max_retries + 1):
         try:
-            response = get_client().models.generate_content(
-                model=settings.llm_model, contents=prompt, config=config
-            )
-            if isinstance(response.parsed, RagAnswer):
-                return response.parsed
-            if attempt == max_retries:
-                raise LLMError("LLM không trả về JSON đúng schema.")
-            reason = "JSON sai schema"
-        except errors.APIError as exc:
-            if exc.code not in RETRYABLE_STATUS or attempt == max_retries:
-                raise LLMError(f"Gemini lỗi ({exc.code}): {exc.message}") from exc
-            reason = f"HTTP {exc.code}"
-        except httpx.TransportError as exc:
-            if attempt == max_retries:
-                raise LLMError(f"Không kết nối được Gemini: {exc}") from exc
-            reason = type(exc).__name__
+            return call(prompt)
+        except _ProviderCallError as exc:
+            if not exc.retryable or attempt == max_retries:
+                raise LLMError(str(exc)) from exc
+            reason = str(exc)
         delay = 2 ** (attempt + 1)
         log.warning("Gọi LLM lỗi (%s), thử lại sau %ss (%d/%d)", reason, delay, attempt + 1, max_retries)
         time.sleep(delay)

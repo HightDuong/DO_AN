@@ -1,0 +1,371 @@
+[
+  {
+    "student_id": "HS01",
+    "display_name": "Minh (giả lập)",
+    "daily_minutes": 20,
+    "goal": "Củng cố SQL và giao dịch trước buổi demo",
+    "topic_scores": {
+      "Tổng quan": 80,
+      "Mô hình quan hệ": 90,
+      "Khóa và liên kết": 70,
+      "SQL": 60,
+      "Giao dịch": 50
+    },
+    "attempt_history": [
+      {
+        "attempt_id": "HS01-A1",
+        "date": "2026-10-21",
+        "topic": "Tổng quan",
+        "correct": 8,
+        "total": 10,
+        "score_percent": 80,
+        "duration_minutes": 10,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS01-A2",
+        "date": "2026-10-22",
+        "topic": "Mô hình quan hệ",
+        "correct": 9,
+        "total": 10,
+        "score_percent": 90,
+        "duration_minutes": 11,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS01-A3",
+        "date": "2026-10-23",
+        "topic": "Khóa và liên kết",
+        "correct": 7,
+        "total": 10,
+        "score_percent": 70,
+        "duration_minutes": 12,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS01-A4",
+        "date": "2026-10-24",
+        "topic": "SQL",
+        "correct": 6,
+        "total": 10,
+        "score_percent": 60,
+        "duration_minutes": 13,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS01-A5",
+        "date": "2026-10-25",
+        "topic": "Giao dịch",
+        "correct": 5,
+        "total": 10,
+        "score_percent": 50,
+        "duration_minutes": 14,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      }
+    ],
+    "frequent_mistakes": [
+      "WHERE và HAVING",
+      "COUNT sau LEFT JOIN",
+      "Nguyên tử và nhất quán"
+    ],
+    "suggested_plan": [
+      "20 phút: 5 phút ôn lọc nhóm, 10 phút làm BT-06/BT-07, 5 phút giải thích lỗi.",
+      "Ngày tiếp theo: ôn GT-4.8 và làm BT-10; sau đó chuyển GT-5.2."
+    ]
+  },
+  {
+    "student_id": "HS02",
+    "display_name": "Lan (giả lập)",
+    "daily_minutes": 15,
+    "goal": "Xây lại kiến thức nền trước khi viết truy vấn",
+    "topic_scores": {
+      "Tổng quan": 40,
+      "Mô hình quan hệ": 50,
+      "Khóa và liên kết": 40,
+      "SQL": 30,
+      "Giao dịch": 20
+    },
+    "attempt_history": [
+      {
+        "attempt_id": "HS02-A1",
+        "date": "2026-10-21",
+        "topic": "Tổng quan",
+        "correct": 4,
+        "total": 10,
+        "score_percent": 40,
+        "duration_minutes": 10,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS02-A2",
+        "date": "2026-10-22",
+        "topic": "Mô hình quan hệ",
+        "correct": 5,
+        "total": 10,
+        "score_percent": 50,
+        "duration_minutes": 11,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS02-A3",
+        "date": "2026-10-23",
+        "topic": "Khóa và liên kết",
+        "correct": 4,
+        "total": 10,
+        "score_percent": 40,
+        "duration_minutes": 12,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS02-A4",
+        "date": "2026-10-24",
+        "topic": "SQL",
+        "correct": 3,
+        "total": 10,
+        "score_percent": 30,
+        "duration_minutes": 13,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS02-A5",
+        "date": "2026-10-25",
+        "topic": "Giao dịch",
+        "correct": 2,
+        "total": 10,
+        "score_percent": 20,
+        "duration_minutes": 14,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      }
+    ],
+    "frequent_mistakes": [
+      "CSDL và hệ quản trị",
+      "Bậc và lực lượng",
+      "Khóa ghép",
+      "COMMIT và ROLLBACK"
+    ],
+    "suggested_plan": [
+      "15 phút: 5 phút đọc GT-1.1/GT-1.3, 5 phút tự giải thích, 5 phút quiz tổng quan.",
+      "Sau khi nắm nền, chuyển GT-2.2 rồi GT-3.1; chưa ưu tiên truy vấn nhiều bảng."
+    ]
+  },
+  {
+    "student_id": "HS03",
+    "display_name": "Huy (giả lập)",
+    "daily_minutes": 30,
+    "goal": "Nắm giao dịch và lỗi đồng thời",
+    "topic_scores": {
+      "Tổng quan": 90,
+      "Mô hình quan hệ": 80,
+      "Khóa và liên kết": 90,
+      "SQL": 90,
+      "Giao dịch": 40
+    },
+    "attempt_history": [
+      {
+        "attempt_id": "HS03-A1",
+        "date": "2026-10-21",
+        "topic": "Tổng quan",
+        "correct": 9,
+        "total": 10,
+        "score_percent": 90,
+        "duration_minutes": 10,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS03-A2",
+        "date": "2026-10-22",
+        "topic": "Mô hình quan hệ",
+        "correct": 8,
+        "total": 10,
+        "score_percent": 80,
+        "duration_minutes": 11,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS03-A3",
+        "date": "2026-10-23",
+        "topic": "Khóa và liên kết",
+        "correct": 9,
+        "total": 10,
+        "score_percent": 90,
+        "duration_minutes": 12,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS03-A4",
+        "date": "2026-10-24",
+        "topic": "SQL",
+        "correct": 9,
+        "total": 10,
+        "score_percent": 90,
+        "duration_minutes": 13,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS03-A5",
+        "date": "2026-10-25",
+        "topic": "Giao dịch",
+        "correct": 4,
+        "total": 10,
+        "score_percent": 40,
+        "duration_minutes": 14,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      }
+    ],
+    "frequent_mistakes": [
+      "Dirty read và non-repeatable read",
+      "Đã chốt và chưa chốt",
+      "FOR UPDATE"
+    ],
+    "suggested_plan": [
+      "30 phút: 10 phút GT-5.2, 10 phút đọc lịch CD-3, 10 phút trả lời tình huống.",
+      "Buổi sau: thao tác hai phiên theo CD-5 trong CSDL thử nghiệm."
+    ]
+  },
+  {
+    "student_id": "HS04",
+    "display_name": "Thao (giả lập)",
+    "daily_minutes": 10,
+    "goal": "Luyện SQL ngắn mỗi ngày trong một tuần",
+    "topic_scores": {
+      "Tổng quan": 70,
+      "Mô hình quan hệ": 60,
+      "Khóa và liên kết": 80,
+      "SQL": 40,
+      "Giao dịch": 70
+    },
+    "attempt_history": [
+      {
+        "attempt_id": "HS04-A1",
+        "date": "2026-10-21",
+        "topic": "Tổng quan",
+        "correct": 7,
+        "total": 10,
+        "score_percent": 70,
+        "duration_minutes": 10,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS04-A2",
+        "date": "2026-10-22",
+        "topic": "Mô hình quan hệ",
+        "correct": 6,
+        "total": 10,
+        "score_percent": 60,
+        "duration_minutes": 10,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS04-A3",
+        "date": "2026-10-23",
+        "topic": "Khóa và liên kết",
+        "correct": 8,
+        "total": 10,
+        "score_percent": 80,
+        "duration_minutes": 10,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS04-A4",
+        "date": "2026-10-24",
+        "topic": "SQL",
+        "correct": 4,
+        "total": 10,
+        "score_percent": 40,
+        "duration_minutes": 10,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS04-A5",
+        "date": "2026-10-25",
+        "topic": "Giao dịch",
+        "correct": 7,
+        "total": 10,
+        "score_percent": 70,
+        "duration_minutes": 10,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      }
+    ],
+    "frequent_mistakes": [
+      "GROUP BY",
+      "WHERE và HAVING",
+      "Điều kiện ON trong LEFT JOIN"
+    ],
+    "suggested_plan": [
+      "10 phút: 3 phút đọc GT-4.6, 5 phút làm BT-07, 2 phút giải thích thứ tự logic.",
+      "Ngày sau: 10 phút với BT-11; giới hạn một bài để phù hợp quỹ thời gian."
+    ]
+  },
+  {
+    "student_id": "HS05",
+    "display_name": "Nam (giả lập)",
+    "daily_minutes": 25,
+    "goal": "Ôn tổng hợp và kiểm tra khả năng giải thích",
+    "topic_scores": {
+      "Tổng quan": 90,
+      "Mô hình quan hệ": 90,
+      "Khóa và liên kết": 90,
+      "SQL": 80,
+      "Giao dịch": 90
+    },
+    "attempt_history": [
+      {
+        "attempt_id": "HS05-A1",
+        "date": "2026-10-21",
+        "topic": "Tổng quan",
+        "correct": 9,
+        "total": 10,
+        "score_percent": 90,
+        "duration_minutes": 10,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS05-A2",
+        "date": "2026-10-22",
+        "topic": "Mô hình quan hệ",
+        "correct": 9,
+        "total": 10,
+        "score_percent": 90,
+        "duration_minutes": 11,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS05-A3",
+        "date": "2026-10-23",
+        "topic": "Khóa và liên kết",
+        "correct": 9,
+        "total": 10,
+        "score_percent": 90,
+        "duration_minutes": 12,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS05-A4",
+        "date": "2026-10-24",
+        "topic": "SQL",
+        "correct": 8,
+        "total": 10,
+        "score_percent": 80,
+        "duration_minutes": 13,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      },
+      {
+        "attempt_id": "HS05-A5",
+        "date": "2026-10-25",
+        "topic": "Giao dịch",
+        "correct": 9,
+        "total": 10,
+        "score_percent": 90,
+        "duration_minutes": 14,
+        "note": "Lượt kiểm tra tổng hợp giả lập; không phải toàn bộ câu trong ngân hàng quiz mẫu."
+      }
+    ],
+    "frequent_mistakes": [
+      "Lọc nhóm kết hợp nối bảng"
+    ],
+    "suggested_plan": [
+      "25 phút: 5 phút nhắc lại khóa, 15 phút giải thích BT-10/BT-11 và phản biện truy vấn sai, 5 phút tự chấm.",
+      "Duy trì ôn xen kẽ năm chủ đề; không học lại toàn bộ phần tổng quan khi chưa có lỗi mới."
+    ]
+  }
+]

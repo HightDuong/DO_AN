@@ -1,0 +1,92 @@
+[
+  {
+    "id": "NEG-01",
+    "question": "Hãy giải thích MongoDB lưu document như thế nào.",
+    "answerable": false,
+    "reason": "Không có nội dung về MongoDB hoặc mô hình document.",
+    "gold_answer": "Tài liệu hiện có chưa cung cấp đủ căn cứ để trả lời câu hỏi này. Bạn có thể bổ sung tài liệu liên quan hoặc hỏi trong phạm vi đã cung cấp.",
+    "references": [],
+    "split": "dev"
+  },
+  {
+    "id": "NEG-02",
+    "question": "Thiết kế sharding cho một CSDL phân tán.",
+    "answerable": false,
+    "reason": "Không có kiến thức sharding hay thiết kế phân tán.",
+    "gold_answer": "Tài liệu hiện có chưa cung cấp đủ căn cứ để trả lời câu hỏi này. Bạn có thể bổ sung tài liệu liên quan hoặc hỏi trong phạm vi đã cung cấp.",
+    "references": [],
+    "split": "dev"
+  },
+  {
+    "id": "NEG-03",
+    "question": "Mô tả chi tiết cách B+ tree tách nút khi chèn.",
+    "answerable": false,
+    "reason": "Không có cấu trúc bên trong của chỉ mục.",
+    "gold_answer": "Tài liệu hiện có chưa cung cấp đủ căn cứ để trả lời câu hỏi này. Bạn có thể bổ sung tài liệu liên quan hoặc hỏi trong phạm vi đã cung cấp.",
+    "references": [],
+    "split": "dev"
+  },
+  {
+    "id": "NEG-04",
+    "question": "Hash index xử lý va chạm như thế nào?",
+    "answerable": false,
+    "reason": "Không có cơ chế hash index.",
+    "gold_answer": "Tài liệu hiện có chưa cung cấp đủ căn cứ để trả lời câu hỏi này. Bạn có thể bổ sung tài liệu liên quan hoặc hỏi trong phạm vi đã cung cấp.",
+    "references": [],
+    "split": "dev"
+  },
+  {
+    "id": "NEG-05",
+    "question": "Viết stored procedure tính học phí.",
+    "answerable": false,
+    "reason": "Không có stored procedure hoặc dữ liệu học phí.",
+    "gold_answer": "Tài liệu hiện có chưa cung cấp đủ căn cứ để trả lời câu hỏi này. Bạn có thể bổ sung tài liệu liên quan hoặc hỏi trong phạm vi đã cung cấp.",
+    "references": [],
+    "split": "dev"
+  },
+  {
+    "id": "NEG-06",
+    "question": "Viết trigger tự động ghi lịch sử sửa điểm.",
+    "answerable": false,
+    "reason": "Không có trigger hoặc bảng lịch sử sửa điểm.",
+    "gold_answer": "Tài liệu hiện có chưa cung cấp đủ căn cứ để trả lời câu hỏi này. Bạn có thể bổ sung tài liệu liên quan hoặc hỏi trong phạm vi đã cung cấp.",
+    "references": [],
+    "split": "dev"
+  },
+  {
+    "id": "NEG-07",
+    "question": "Tạo view tổng hợp điểm và giải thích cập nhật view.",
+    "answerable": false,
+    "reason": "Không có kiến thức view.",
+    "gold_answer": "Tài liệu hiện có chưa cung cấp đủ căn cứ để trả lời câu hỏi này. Bạn có thể bổ sung tài liệu liên quan hoặc hỏi trong phạm vi đã cung cấp.",
+    "references": [],
+    "split": "dev"
+  },
+  {
+    "id": "NEG-08",
+    "question": "Chứng minh lược đồ đạt BCNF rồi phân rã về 4NF.",
+    "answerable": false,
+    "reason": "Không có phụ thuộc hàm và các dạng chuẩn này.",
+    "gold_answer": "Tài liệu hiện có chưa cung cấp đủ căn cứ để trả lời câu hỏi này. Bạn có thể bổ sung tài liệu liên quan hoặc hỏi trong phạm vi đã cung cấp.",
+    "references": [],
+    "split": "test"
+  },
+  {
+    "id": "NEG-09",
+    "question": "MySQL hay PostgreSQL nhanh hơn trên một tỷ dòng?",
+    "answerable": false,
+    "reason": "Không có phép đo hay số liệu so sánh hiệu năng.",
+    "gold_answer": "Tài liệu hiện có chưa cung cấp đủ căn cứ để trả lời câu hỏi này. Bạn có thể bổ sung tài liệu liên quan hoặc hỏi trong phạm vi đã cung cấp.",
+    "references": [],
+    "split": "test"
+  },
+  {
+    "id": "NEG-10",
+    "question": "Sinh viên SV01 có ngày sinh và điểm học kỳ trước bao nhiêu?",
+    "answerable": false,
+    "reason": "Không có cột ngày sinh, học kỳ hoặc dữ liệu kỳ trước.",
+    "gold_answer": "Tài liệu hiện có chưa cung cấp đủ căn cứ để trả lời câu hỏi này. Bạn có thể bổ sung tài liệu liên quan hoặc hỏi trong phạm vi đã cung cấp.",
+    "references": [],
+    "split": "test"
+  }
+]

@@ -1,0 +1,502 @@
+[
+  {
+    "id": "QUIZ-01",
+    "topic": "Tổng quan",
+    "difficulty": "Cơ bản",
+    "question": "Đâu là ví dụ về hệ quản trị CSDL?",
+    "options": {
+      "A": "Một điểm số 8.0",
+      "B": "Một danh sách sinh viên",
+      "C": "PostgreSQL",
+      "D": "Mã sinh viên SV01"
+    },
+    "correct_answer": "C",
+    "explanation": "PostgreSQL là phần mềm quản trị; ba lựa chọn còn lại là dữ liệu hoặc tập dữ liệu.",
+    "section_id": "GT-1.3",
+    "source": {
+      "section_id": "GT-1.3",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 6
+    }
+  },
+  {
+    "id": "QUIZ-02",
+    "topic": "Tổng quan",
+    "difficulty": "Cơ bản",
+    "question": "Hai tệp lưu lớp khác nhau của cùng SV01 là biểu hiện gì?",
+    "options": {
+      "A": "Tính nguyên tử",
+      "B": "Không nhất quán dữ liệu",
+      "C": "Tính độc lập vật lý",
+      "D": "Khóa ghép"
+    },
+    "correct_answer": "B",
+    "explanation": "Cùng một đối tượng có giá trị mâu thuẫn giữa các bản sao.",
+    "section_id": "GT-1.2",
+    "source": {
+      "section_id": "GT-1.2",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 5
+    }
+  },
+  {
+    "id": "QUIZ-03",
+    "topic": "Tổng quan",
+    "difficulty": "Cơ bản",
+    "question": "Mô tả cấu trúc logic chung của CSDL thuộc mức nào?",
+    "options": {
+      "A": "Ngoài",
+      "B": "Trong",
+      "C": "Thiết bị",
+      "D": "Khái niệm"
+    },
+    "correct_answer": "D",
+    "explanation": "Mức khái niệm mô tả bảng, thuộc tính và liên kết chung.",
+    "section_id": "GT-1.4",
+    "source": {
+      "section_id": "GT-1.4",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 7
+    }
+  },
+  {
+    "id": "QUIZ-04",
+    "topic": "Tổng quan",
+    "difficulty": "Cơ bản",
+    "question": "Vai trò nào thường quản lý quyền và sao lưu?",
+    "options": {
+      "A": "DBA",
+      "B": "Người xem điểm",
+      "C": "Mã môn học",
+      "D": "Bộ dữ liệu"
+    },
+    "correct_answer": "A",
+    "explanation": "Quản trị viên CSDL tổ chức quyền, vận hành và sao lưu.",
+    "section_id": "GT-1.3",
+    "source": {
+      "section_id": "GT-1.3",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 6
+    }
+  },
+  {
+    "id": "QUIZ-05",
+    "topic": "Tổng quan",
+    "difficulty": "Vận dụng",
+    "question": "Đổi tổ chức tệp mà không buộc đổi lược đồ khái niệm minh họa gì?",
+    "options": {
+      "A": "Độc lập logic",
+      "B": "Thay đổi miền",
+      "C": "Độc lập vật lý",
+      "D": "Đổi lực lượng"
+    },
+    "correct_answer": "C",
+    "explanation": "Độc lập vật lý tách tổ chức lưu trữ khỏi cấu trúc logic.",
+    "section_id": "GT-1.4",
+    "source": {
+      "section_id": "GT-1.4",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 7
+    }
+  },
+  {
+    "id": "QUIZ-06",
+    "topic": "Mô hình quan hệ",
+    "difficulty": "Cơ bản",
+    "question": "Bậc của SinhVien(MaSV, HoTen, MaLop, Email) là bao nhiêu?",
+    "options": {
+      "A": "2",
+      "B": "4",
+      "C": "5",
+      "D": "8"
+    },
+    "correct_answer": "B",
+    "explanation": "Bậc đếm thuộc tính: có 4 cột.",
+    "section_id": "GT-2.2",
+    "source": {
+      "section_id": "GT-2.2",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 9
+    }
+  },
+  {
+    "id": "QUIZ-07",
+    "topic": "Mô hình quan hệ",
+    "difficulty": "Cơ bản",
+    "question": "Thêm một sinh viên hợp lệ làm thay đổi gì nếu giữ nguyên cấu trúc?",
+    "options": {
+      "A": "Bậc tăng 1",
+      "B": "Miền bị xóa",
+      "C": "Số cột giảm 1",
+      "D": "Lực lượng tăng 1"
+    },
+    "correct_answer": "D",
+    "explanation": "Thêm dòng làm tăng số bộ; bậc không đổi.",
+    "section_id": "GT-2.2",
+    "source": {
+      "section_id": "GT-2.2",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 9
+    }
+  },
+  {
+    "id": "QUIZ-08",
+    "topic": "Mô hình quan hệ",
+    "difficulty": "Cơ bản",
+    "question": "Quan hệ lý thuyết có đặc điểm nào?",
+    "options": {
+      "A": "Không có hai bộ giống nhau hoàn toàn",
+      "B": "Thứ tự dòng luôn có ý nghĩa",
+      "C": "Cho phép bộ trùng vì là tập hợp",
+      "D": "Mọi thuộc tính phải là số"
+    },
+    "correct_answer": "A",
+    "explanation": "Quan hệ là tập hợp các bộ; thứ tự không tạo ra ý nghĩa mới.",
+    "section_id": "GT-2.3",
+    "source": {
+      "section_id": "GT-2.3",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 10
+    }
+  },
+  {
+    "id": "QUIZ-09",
+    "topic": "Mô hình quan hệ",
+    "difficulty": "Cơ bản",
+    "question": "Miền nghiệp vụ của Diem trong ví dụ là gì?",
+    "options": {
+      "A": "Mọi chuỗi văn bản",
+      "B": "Số nguyên lớn hơn 10",
+      "C": "Số từ 0 đến 10",
+      "D": "Chỉ số âm"
+    },
+    "correct_answer": "C",
+    "explanation": "Kiểu biểu diễn còn cần ràng buộc miền điểm 0-10.",
+    "section_id": "GT-2.1",
+    "source": {
+      "section_id": "GT-2.1",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 8
+    }
+  },
+  {
+    "id": "QUIZ-10",
+    "topic": "Mô hình quan hệ",
+    "difficulty": "Vận dụng",
+    "question": "Nhận định nào đúng khi dùng SQL?",
+    "options": {
+      "A": "SELECT luôn trả tập không trùng",
+      "B": "Không có ORDER BY vẫn được bảo đảm thứ tự",
+      "C": "Mọi bảng tự có khóa chính",
+      "D": "SELECT có thể trả dòng trùng nếu không DISTINCT"
+    },
+    "correct_answer": "D",
+    "explanation": "SQL có thể giữ các dòng trùng trong kết quả.",
+    "section_id": "GT-2.3",
+    "source": {
+      "section_id": "GT-2.3",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 10
+    }
+  },
+  {
+    "id": "QUIZ-11",
+    "topic": "Khóa và liên kết",
+    "difficulty": "Cơ bản",
+    "question": "Khóa chính của KetQua trong mô hình là gì?",
+    "options": {
+      "A": "MaSV",
+      "B": "(MaSV, MaMH)",
+      "C": "MaMH",
+      "D": "Diem"
+    },
+    "correct_answer": "B",
+    "explanation": "Một sinh viên có nhiều môn; cặp sinh viên-môn xác định duy nhất kết quả.",
+    "section_id": "GT-3.1",
+    "source": {
+      "section_id": "GT-3.1",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 12
+    }
+  },
+  {
+    "id": "QUIZ-12",
+    "topic": "Khóa và liên kết",
+    "difficulty": "Vận dụng",
+    "question": "Phát biểu nào đúng nhất về khóa ngoại nói chung?",
+    "options": {
+      "A": "Có thể lặp và có thể NULL nếu không có ràng buộc khác",
+      "B": "Luôn duy nhất và không NULL",
+      "C": "Mỗi bảng chỉ có một khóa ngoại",
+      "D": "Không được đồng thời thuộc khóa chính"
+    },
+    "correct_answer": "A",
+    "explanation": "Phải xét thêm NOT NULL và PRIMARY KEY của cột cụ thể.",
+    "section_id": "GT-3.2",
+    "source": {
+      "section_id": "GT-3.2",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 13
+    }
+  },
+  {
+    "id": "QUIZ-13",
+    "topic": "Khóa và liên kết",
+    "difficulty": "Cơ bản",
+    "question": "Quan hệ SinhVien-MonHoc được biểu diễn n-n qua bảng nào?",
+    "options": {
+      "A": "Lop",
+      "B": "Email",
+      "C": "TaiKhoan",
+      "D": "KetQua"
+    },
+    "correct_answer": "D",
+    "explanation": "KetQua chứa từng cặp MaSV, MaMH cùng điểm.",
+    "section_id": "GT-3.3",
+    "source": {
+      "section_id": "GT-3.3",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 14
+    }
+  },
+  {
+    "id": "QUIZ-14",
+    "topic": "Khóa và liên kết",
+    "difficulty": "Cơ bản",
+    "question": "ON DELETE RESTRICT làm gì khi dòng cha còn được tham chiếu?",
+    "options": {
+      "A": "Luôn xóa cả hai bảng",
+      "B": "Đổi mã cha thành NULL",
+      "C": "Ngăn xóa dòng cha",
+      "D": "Tự tạo bản sao"
+    },
+    "correct_answer": "C",
+    "explanation": "RESTRICT từ chối xóa khi tham chiếu còn tồn tại.",
+    "section_id": "GT-3.5",
+    "source": {
+      "section_id": "GT-3.5",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 16
+    }
+  },
+  {
+    "id": "QUIZ-15",
+    "topic": "Khóa và liên kết",
+    "difficulty": "Vận dụng",
+    "question": "{MaSV, HoTen} là gì khi MaSV đã là khóa ứng viên?",
+    "options": {
+      "A": "Khóa ứng viên tối thiểu",
+      "B": "Siêu khóa không tối thiểu",
+      "C": "Khóa ngoại bắt buộc",
+      "D": "Không thể định danh dòng"
+    },
+    "correct_answer": "B",
+    "explanation": "Có thuộc tính HoTen dư, nên không là khóa ứng viên.",
+    "section_id": "GT-3.1",
+    "source": {
+      "section_id": "GT-3.1",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 12
+    }
+  },
+  {
+    "id": "QUIZ-16",
+    "topic": "SQL",
+    "difficulty": "Cơ bản",
+    "question": "COUNT(Email) trên dữ liệu nền trả về bao nhiêu?",
+    "options": {
+      "A": "4",
+      "B": "5",
+      "C": "8",
+      "D": "0"
+    },
+    "correct_answer": "A",
+    "explanation": "Bỏ qua NULL của SV04 nên chỉ đếm 4 giá trị.",
+    "section_id": "GT-4.4",
+    "source": {
+      "section_id": "GT-4.4",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 20
+    }
+  },
+  {
+    "id": "QUIZ-17",
+    "topic": "SQL",
+    "difficulty": "Cơ bản",
+    "question": "Điều kiện chọn môn có AVG(Diem) >= 7.5 đặt ở đâu?",
+    "options": {
+      "A": "WHERE trước FROM",
+      "B": "ORDER BY thay GROUP BY",
+      "C": "HAVING",
+      "D": "ON DELETE"
+    },
+    "correct_answer": "C",
+    "explanation": "Đây là điều kiện của nhóm sau tính hàm gộp.",
+    "section_id": "GT-4.6",
+    "source": {
+      "section_id": "GT-4.6",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 22
+    }
+  },
+  {
+    "id": "QUIZ-18",
+    "topic": "SQL",
+    "difficulty": "Cơ bản",
+    "question": "Tìm sinh viên thiếu email dùng điều kiện nào?",
+    "options": {
+      "A": "Email = NULL",
+      "B": "Email <> NULL",
+      "C": "Email = 'NULL'",
+      "D": "Email IS NULL"
+    },
+    "correct_answer": "D",
+    "explanation": "IS NULL kiểm tra giá trị thiếu, khác chuỗi ký tự NULL.",
+    "section_id": "GT-4.3",
+    "source": {
+      "section_id": "GT-4.3",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 19
+    }
+  },
+  {
+    "id": "QUIZ-19",
+    "topic": "SQL",
+    "difficulty": "Vận dụng",
+    "question": "Đếm môn của mọi sinh viên sau LEFT JOIN nên dùng gì để Ha có 0?",
+    "options": {
+      "A": "COUNT(*)",
+      "B": "COUNT(k.MaMH)",
+      "C": "SUM(s.MaSV)",
+      "D": "COUNT(s.MaSV)"
+    },
+    "correct_answer": "B",
+    "explanation": "Cột phía phải NULL ở dòng Ha nên COUNT(k.MaMH) bằng 0.",
+    "section_id": "GT-4.8",
+    "source": {
+      "section_id": "GT-4.8",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 24
+    }
+  },
+  {
+    "id": "QUIZ-20",
+    "topic": "SQL",
+    "difficulty": "Vận dụng",
+    "question": "Muốn giữ mọi sinh viên và chỉ ghép điểm CSDL nếu có, đặt điều kiện mã môn ở đâu?",
+    "options": {
+      "A": "Trong ON của LEFT JOIN",
+      "B": "WHERE k.MaMH = 'CSDL'",
+      "C": "HAVING s.MaSV IS NULL",
+      "D": "Không thể làm bằng JOIN"
+    },
+    "correct_answer": "A",
+    "explanation": "Đặt trong WHERE sẽ loại các dòng không khớp.",
+    "section_id": "GT-4.8",
+    "source": {
+      "section_id": "GT-4.8",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 24
+    }
+  },
+  {
+    "id": "QUIZ-21",
+    "topic": "Giao dịch",
+    "difficulty": "Cơ bản",
+    "question": "Tính chất nào yêu cầu tất cả hoặc không có gì?",
+    "options": {
+      "A": "Durability",
+      "B": "Isolation",
+      "C": "Consistency",
+      "D": "Atomicity"
+    },
+    "correct_answer": "D",
+    "explanation": "Tính nguyên tử không để lại kết quả từng phần của giao dịch bị hủy.",
+    "section_id": "GT-5.2",
+    "source": {
+      "section_id": "GT-5.2",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 27
+    }
+  },
+  {
+    "id": "QUIZ-22",
+    "topic": "Giao dịch",
+    "difficulty": "Cơ bản",
+    "question": "Tổng A+B không đổi khi chuyển tiền không phí minh họa tính chất nào?",
+    "options": {
+      "A": "Isolation",
+      "B": "Consistency",
+      "C": "Tăng lực lượng",
+      "D": "Giảm bậc"
+    },
+    "correct_answer": "B",
+    "explanation": "Đây là quy tắc nhất quán của nghiệp vụ chuyển tiền.",
+    "section_id": "GT-5.2",
+    "source": {
+      "section_id": "GT-5.2",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 27
+    }
+  },
+  {
+    "id": "QUIZ-23",
+    "topic": "Giao dịch",
+    "difficulty": "Cơ bản",
+    "question": "Đọc thay đổi chưa COMMIT của giao dịch khác gọi là gì?",
+    "options": {
+      "A": "Lost update",
+      "B": "Khóa ứng viên",
+      "C": "Dirty read",
+      "D": "Non-repeatable read"
+    },
+    "correct_answer": "C",
+    "explanation": "Dirty read phân biệt bởi trạng thái chưa chốt của dữ liệu được đọc.",
+    "section_id": "GT-5.3",
+    "source": {
+      "section_id": "GT-5.3",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 28
+    }
+  },
+  {
+    "id": "QUIZ-24",
+    "topic": "Giao dịch",
+    "difficulty": "Vận dụng",
+    "question": "Sau COMMIT thành công, ROLLBACK giao dịch mới có tự hoàn tác giao dịch cũ không?",
+    "options": {
+      "A": "Không",
+      "B": "Có trong mọi trường hợp",
+      "C": "Chỉ cần gọi hai lần",
+      "D": "Có nếu đọc lại dữ liệu"
+    },
+    "correct_answer": "A",
+    "explanation": "ROLLBACK chỉ hủy thay đổi chưa chốt của giao dịch hiện tại.",
+    "section_id": "GT-5.1",
+    "source": {
+      "section_id": "GT-5.1",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 26
+    }
+  },
+  {
+    "id": "QUIZ-25",
+    "topic": "Giao dịch",
+    "difficulty": "Cơ bản",
+    "question": "Một phiên muốn cập nhật dòng đang bị FOR UPDATE xung đột có thể gặp gì?",
+    "options": {
+      "A": "Tự đổi khóa chính",
+      "B": "Luôn đọc bẩn",
+      "C": "Tự bỏ qua mọi ràng buộc",
+      "D": "Phải đợi giao dịch giữ khóa kết thúc"
+    },
+    "correct_answer": "D",
+    "explanation": "Khóa điều phối các yêu cầu ghi hoặc khóa xung đột.",
+    "section_id": "GT-5.4",
+    "source": {
+      "section_id": "GT-5.4",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 29
+    }
+  }
+]

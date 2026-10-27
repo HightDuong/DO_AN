@@ -1,0 +1,290 @@
+[
+  {
+    "id": "BT-01",
+    "title": "Liệt kê sinh viên theo lớp",
+    "question": "Lấy mã và tên sinh viên CTK1, sắp xếp theo mã.",
+    "sql": "SELECT MaSV, HoTen\nFROM SinhVien\nWHERE MaLop = 'CTK1'\nORDER BY MaSV;",
+    "expected_columns": [
+      "MaSV",
+      "HoTen"
+    ],
+    "expected_rows": [
+      [
+        "SV01",
+        "An"
+      ],
+      [
+        "SV02",
+        "Binh"
+      ],
+      [
+        "SV05",
+        "Ha"
+      ]
+    ],
+    "explanation": "WHERE chọn CTK1 trước khi sắp xếp. Ha vẫn được lấy vì bài chỉ xét thông tin lớp, không yêu cầu đã có điểm."
+  },
+  {
+    "id": "BT-02",
+    "title": "Lọc điểm theo khoảng",
+    "question": "Tìm kết quả SQL có điểm từ 5.0 đến 7.5, lấy cả hai biên.",
+    "sql": "SELECT MaSV, Diem\nFROM KetQua\nWHERE MaMH = 'SQL' AND Diem BETWEEN 5.0 AND 7.5\nORDER BY MaSV;",
+    "expected_columns": [
+      "MaSV",
+      "Diem"
+    ],
+    "expected_rows": [
+      [
+        "SV02",
+        7.5
+      ],
+      [
+        "SV04",
+        5.0
+      ]
+    ],
+    "explanation": "BETWEEN bao gồm cả giá trị đầu và cuối. SV01 bị loại vì 9.0 lớn hơn 7.5; không nhầm chữ SQL là từ khóa trong trường hợp nó là giá trị mã môn."
+  },
+  {
+    "id": "BT-03",
+    "title": "Tìm giá trị thiếu và mẫu tên",
+    "question": "Tìm sinh viên thiếu email; truy vấn riêng tìm tên bắt đầu bằng B.",
+    "sql": "SELECT MaSV, HoTen FROM SinhVien\nWHERE Email IS NULL ORDER BY MaSV;",
+    "expected_columns": [
+      "MaSV",
+      "HoTen"
+    ],
+    "expected_rows": [
+      [
+        "SV04",
+        "Dung"
+      ]
+    ],
+    "explanation": "Kiểm tra thiếu email dùng IS NULL. Truy vấn tên là SELECT MaSV FROM SinhVien WHERE HoTen LIKE 'B%' ORDER BY MaSV; kết quả SV02."
+  },
+  {
+    "id": "BT-04",
+    "title": "Đếm và thống kê toàn bộ",
+    "question": "Tính số dòng, tổng, trung bình, điểm nhỏ nhất và lớn nhất của KetQua.",
+    "sql": "SELECT COUNT(*) AS N, SUM(Diem) AS Tong,\n       AVG(Diem) AS TB, MIN(Diem) AS MinDiem,\n       MAX(Diem) AS MaxDiem\nFROM KetQua;",
+    "expected_columns": [
+      "N",
+      "Tong",
+      "TB",
+      "MinDiem",
+      "MaxDiem"
+    ],
+    "expected_rows": [
+      [
+        8,
+        59.0,
+        7.375,
+        5.0,
+        9.0
+      ]
+    ],
+    "explanation": "Có 8 điểm, tổng 59.0 nên trung bình là 59/8 = 7.375. Không lấy trung bình các trung bình môn mà bỏ qua số lượng kết quả từng môn."
+  },
+  {
+    "id": "BT-05",
+    "title": "Nhóm theo môn",
+    "question": "Đếm số sinh viên đã có kết quả ở mỗi môn, sắp theo mã môn.",
+    "sql": "SELECT MaMH, COUNT(*) AS SoSV\nFROM KetQua\nGROUP BY MaMH\nORDER BY MaMH;",
+    "expected_columns": [
+      "MaMH",
+      "SoSV"
+    ],
+    "expected_rows": [
+      [
+        "CSDL",
+        3
+      ],
+      [
+        "LT",
+        2
+      ],
+      [
+        "SQL",
+        3
+      ]
+    ],
+    "explanation": "Khóa ghép không cho một sinh viên lặp cùng môn nên COUNT(*) ở từng nhóm chính là số sinh viên có kết quả môn đó."
+  },
+  {
+    "id": "BT-06",
+    "title": "Lọc nhóm theo trung bình",
+    "question": "Tìm môn có điểm trung bình từ 7.5 trở lên.",
+    "sql": "SELECT MaMH, AVG(Diem) AS DiemTB\nFROM KetQua\nGROUP BY MaMH\nHAVING AVG(Diem) >= 7.5\nORDER BY MaMH;",
+    "expected_columns": [
+      "MaMH",
+      "DiemTB"
+    ],
+    "expected_rows": [
+      [
+        "CSDL",
+        7.666666666666667
+      ]
+    ],
+    "explanation": "CSDL có 23/3; SQL có 21.5/3; LT có 14.5/2. Chỉ CSDL đạt. Khi so sánh kết quả tự động, dùng sai số số thực nhỏ hoặc biểu diễn phân số chuẩn."
+  },
+  {
+    "id": "BT-07",
+    "title": "Kết hợp WHERE và HAVING",
+    "question": "Chỉ xét điểm từ 7; trong tập đó tìm môn còn ít nhất 2 kết quả.",
+    "sql": "SELECT MaMH, COUNT(*) AS SoSV, AVG(Diem) AS DiemTB\nFROM KetQua\nWHERE Diem >= 7\nGROUP BY MaMH\nHAVING COUNT(*) >= 2\nORDER BY MaMH;",
+    "expected_columns": [
+      "MaMH",
+      "SoSV",
+      "DiemTB"
+    ],
+    "expected_rows": [
+      [
+        "CSDL",
+        2,
+        8.5
+      ],
+      [
+        "SQL",
+        2,
+        8.25
+      ]
+    ],
+    "explanation": "WHERE loại điểm thấp trước khi nhóm. LT chỉ còn điểm 8.0 nên có một dòng và không qua HAVING."
+  },
+  {
+    "id": "BT-08",
+    "title": "Nối bảng để lấy tên",
+    "question": "Lấy mã, tên sinh viên và điểm môn CSDL, sắp theo mã sinh viên.",
+    "sql": "SELECT s.MaSV, s.HoTen, k.Diem\nFROM SinhVien AS s\nJOIN KetQua AS k ON s.MaSV = k.MaSV\nWHERE k.MaMH = 'CSDL'\nORDER BY s.MaSV;",
+    "expected_columns": [
+      "MaSV",
+      "HoTen",
+      "Diem"
+    ],
+    "expected_rows": [
+      [
+        "SV01",
+        "An",
+        8.0
+      ],
+      [
+        "SV02",
+        "Binh",
+        6.0
+      ],
+      [
+        "SV03",
+        "Chi",
+        9.0
+      ]
+    ],
+    "explanation": "INNER JOIN chỉ giữ cặp khớp. Dung không có điểm CSDL; Ha không có kết quả nào nên cả hai không xuất hiện."
+  },
+  {
+    "id": "BT-09",
+    "title": "Tìm sinh viên chưa có kết quả",
+    "question": "Dùng LEFT JOIN tìm mã và tên sinh viên chưa có kết quả ở bất kỳ môn nào.",
+    "sql": "SELECT s.MaSV, s.HoTen\nFROM SinhVien AS s\nLEFT JOIN KetQua AS k ON s.MaSV = k.MaSV\nWHERE k.MaSV IS NULL\nORDER BY s.MaSV;",
+    "expected_columns": [
+      "MaSV",
+      "HoTen"
+    ],
+    "expected_rows": [
+      [
+        "SV05",
+        "Ha"
+      ]
+    ],
+    "explanation": "Khóa k.MaSV không thể NULL ở dòng thật. Sau LEFT JOIN, NULL tại đó là dấu hiệu không tìm thấy dòng kết quả khớp."
+  },
+  {
+    "id": "BT-10",
+    "title": "Đếm cả sinh viên chưa có điểm",
+    "question": "Đếm số môn đã có kết quả của mọi sinh viên, bao gồm 0 môn.",
+    "sql": "SELECT s.MaSV, COUNT(k.MaMH) AS SoMon\nFROM SinhVien AS s\nLEFT JOIN KetQua AS k ON s.MaSV = k.MaSV\nGROUP BY s.MaSV\nORDER BY s.MaSV;",
+    "expected_columns": [
+      "MaSV",
+      "SoMon"
+    ],
+    "expected_rows": [
+      [
+        "SV01",
+        2
+      ],
+      [
+        "SV02",
+        2
+      ],
+      [
+        "SV03",
+        2
+      ],
+      [
+        "SV04",
+        2
+      ],
+      [
+        "SV05",
+        0
+      ]
+    ],
+    "explanation": "Phải đếm cột bên phải khác NULL. COUNT(*) sẽ đếm dòng bảo toàn của Ha và trả 1, sai với ý nghĩa số môn."
+  },
+  {
+    "id": "BT-11",
+    "title": "Giữ mọi sinh viên khi lọc môn",
+    "question": "Hiển thị mọi sinh viên và điểm CSDL nếu có; vẫn giữ người chưa có điểm môn này.",
+    "sql": "SELECT s.MaSV, k.Diem\nFROM SinhVien AS s\nLEFT JOIN KetQua AS k\n  ON s.MaSV = k.MaSV AND k.MaMH = 'CSDL'\nORDER BY s.MaSV;",
+    "expected_columns": [
+      "MaSV",
+      "Diem"
+    ],
+    "expected_rows": [
+      [
+        "SV01",
+        8.0
+      ],
+      [
+        "SV02",
+        6.0
+      ],
+      [
+        "SV03",
+        9.0
+      ],
+      [
+        "SV04",
+        null
+      ],
+      [
+        "SV05",
+        null
+      ]
+    ],
+    "explanation": "Điều kiện môn đặt trong ON. Nếu đặt WHERE k.MaMH = 'CSDL' thì SV04 và SV05 bị loại vì phía phải là NULL."
+  },
+  {
+    "id": "BT-12",
+    "title": "Thử cập nhật rồi khôi phục",
+    "question": "Trong giao dịch thử, thêm SV06, đổi điểm SQL của SV04 thành 7.0, xóa điểm LT của SV04, kiểm tra rồi hủy.",
+    "sql": "BEGIN;\nINSERT INTO SinhVien VALUES ('SV06','Lan','CTK2',NULL);\nUPDATE KetQua SET Diem = 7.0\nWHERE MaSV = 'SV04' AND MaMH = 'SQL';\nDELETE FROM KetQua\nWHERE MaSV = 'SV04' AND MaMH = 'LT';\nSELECT COUNT(*) AS SoSV FROM SinhVien;\nSELECT COUNT(*) AS SoKQ FROM KetQua;\nROLLBACK;",
+    "expected_columns": [
+      "Thời điểm",
+      "Số SV",
+      "Số kết quả"
+    ],
+    "expected_rows": [
+      [
+        "Trước ROLLBACK",
+        6,
+        7
+      ],
+      [
+        "Sau ROLLBACK",
+        5,
+        8
+      ]
+    ],
+    "explanation": "Ba thay đổi cùng nằm trong một giao dịch. Sau ROLLBACK, điểm SQL của SV04 trở lại 5.0, điểm LT 6.5 được phục hồi và SV06 không còn tồn tại."
+  }
+]

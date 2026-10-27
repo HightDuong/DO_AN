@@ -1,0 +1,1006 @@
+[
+  {
+    "id": "RAG-01",
+    "category": "Hỏi trực tiếp",
+    "split": "dev",
+    "question": "Cơ sở dữ liệu là gì?",
+    "gold_answer": "Tập hợp dữ liệu liên quan, được tổ chức và lưu trữ để khai thác, cập nhật và quản lý.",
+    "references": [
+      {
+        "section_id": "GT-1.1",
+        "evidence_quote": "Cơ sở dữ liệu là tập hợp dữ liệu có liên quan, được tổ chức và lưu trữ để phục vụ việc khai thác, cập nhật và quản lý.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 4
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-02",
+    "category": "Hỏi trực tiếp",
+    "split": "dev",
+    "question": "Hệ quản trị CSDL có phải là chính dữ liệu không?",
+    "gold_answer": "Không. CSDL là dữ liệu; hệ quản trị là phần mềm định nghĩa, truy vấn, cập nhật và quản lý dữ liệu.",
+    "references": [
+      {
+        "section_id": "GT-1.3",
+        "evidence_quote": "Cơ sở dữ liệu là phần dữ liệu được quản lý; hệ quản trị CSDL là công cụ và cơ chế quản lý dữ liệu đó.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 6
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-03",
+    "category": "Hỏi trực tiếp",
+    "split": "dev",
+    "question": "Ba mức của kiến trúc CSDL là gì?",
+    "gold_answer": "Mức ngoài, mức khái niệm và mức trong.",
+    "references": [
+      {
+        "section_id": "GT-1.4",
+        "evidence_quote": "Kiến trúc ba mức phân biệt mức ngoài, mức khái niệm và mức trong.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 7
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-04",
+    "category": "Hỏi trực tiếp",
+    "split": "dev",
+    "question": "Trong dữ liệu nền, bậc và lực lượng của SinhVien bằng bao nhiêu?",
+    "gold_answer": "Bậc 4, lực lượng 5.",
+    "references": [
+      {
+        "section_id": "GT-2.2",
+        "evidence_quote": "SinhVien có bậc 4 và lực lượng 5 trong dữ liệu nền.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 9
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-05",
+    "category": "Hỏi trực tiếp",
+    "split": "dev",
+    "question": "Khóa chính ghép của KetQua gồm những cột nào?",
+    "gold_answer": "(MaSV, MaMH), theo giả định mỗi sinh viên có một kết quả mỗi môn.",
+    "references": [
+      {
+        "section_id": "GT-3.1",
+        "evidence_quote": "KetQua dùng cặp (MaSV, MaMH) để xác định duy nhất một điểm của một sinh viên trong một môn.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 12
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-06",
+    "category": "Hỏi trực tiếp",
+    "split": "dev",
+    "question": "KetQua.MaSV tham chiếu tới đâu?",
+    "gold_answer": "SinhVien.MaSV.",
+    "references": [
+      {
+        "section_id": "GT-3.2",
+        "evidence_quote": "KetQua.MaSV tham chiếu SinhVien.MaSV.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 13
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-07",
+    "category": "Hỏi trực tiếp",
+    "split": "dev",
+    "question": "Điều kiện BETWEEN 6 AND 8 có lấy hai đầu mút không?",
+    "gold_answer": "Có, lấy cả 6 và 8.",
+    "references": [
+      {
+        "section_id": "GT-4.3",
+        "evidence_quote": "BETWEEN lấy cả hai biên.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 19
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-08",
+    "category": "Hỏi trực tiếp",
+    "split": "test",
+    "question": "Tổng và trung bình điểm toàn bộ KetQua là bao nhiêu?",
+    "gold_answer": "Tổng 59.0, trung bình 7.375 từ 8 kết quả.",
+    "references": [
+      {
+        "section_id": "GT-4.4",
+        "evidence_quote": "SoKetQua = 8; TongDiem = 59.0; DiemTB = 7.375; ThapNhat = 5.0; CaoNhat = 9.0.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 20
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-09",
+    "category": "Hỏi trực tiếp",
+    "split": "test",
+    "question": "Lệnh nào hủy thay đổi chưa chốt của giao dịch hiện tại?",
+    "gold_answer": "ROLLBACK.",
+    "references": [
+      {
+        "section_id": "GT-5.1",
+        "evidence_quote": "ROLLBACK hủy các thay đổi chưa được chốt của giao dịch hiện tại.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 26
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-10",
+    "category": "Hỏi trực tiếp",
+    "split": "test",
+    "question": "ACID gồm những tính chất nào?",
+    "gold_answer": "Atomicity (nguyên tử), Consistency (nhất quán), Isolation (cô lập), Durability (bền vững).",
+    "references": [
+      {
+        "section_id": "GT-5.2",
+        "evidence_quote": "Atomicity - Tính nguyên tử",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 27
+      },
+      {
+        "section_id": "GT-5.2",
+        "evidence_quote": "Consistency - Tính nhất quán",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 27
+      },
+      {
+        "section_id": "GT-5.2",
+        "evidence_quote": "Isolation - Tính cô lập",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 27
+      },
+      {
+        "section_id": "GT-5.2",
+        "evidence_quote": "Durability - Tính bền vững",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 27
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-11",
+    "category": "Giải thích",
+    "split": "dev",
+    "question": "Vì sao lưu nhiều tệp có thể làm thông tin lớp của cùng sinh viên mâu thuẫn?",
+    "gold_answer": "Thông tin bị sao chép ở nhiều tệp; chỉ sửa một nơi khiến các bản sao không đồng bộ.",
+    "references": [
+      {
+        "section_id": "GT-1.2",
+        "evidence_quote": "Nếu SV01 chuyển lớp, tệp điểm đã sửa sang CTK2 nhưng tệp học phí còn CTK1, hai bộ phận sẽ đưa ra kết luận khác nhau về cùng sinh viên.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 5
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-12",
+    "category": "Giải thích",
+    "split": "dev",
+    "question": "Vì sao NUMERIC(3,1) chưa đủ để bảo đảm điểm hợp lệ?",
+    "gold_answer": "Kiểu số còn biểu diễn được 12.0; cần CHECK 0-10 và NOT NULL nếu bắt buộc có điểm.",
+    "references": [
+      {
+        "section_id": "GT-2.1",
+        "evidence_quote": "NUMERIC(3,1) có thể biểu diễn 12.0, nhưng điểm 12.0 không hợp lệ theo quy tắc chấm điểm 0-10.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 8
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-13",
+    "category": "Giải thích",
+    "split": "dev",
+    "question": "Vì sao HoTen không được kết luận là khóa chỉ vì năm tên hiện tại đều khác nhau?",
+    "gold_answer": "Khóa dựa trên ràng buộc mọi thể hiện hợp lệ; nghiệp vụ cho phép trùng tên.",
+    "references": [
+      {
+        "section_id": "GT-3.1",
+        "evidence_quote": "Điều này không đủ để kết luận HoTen là khóa ứng viên, vì quy tắc nghiệp vụ vẫn cho phép hai sinh viên trùng tên.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 12
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-14",
+    "category": "Giải thích",
+    "split": "dev",
+    "question": "Vì sao CHECK khoảng điểm còn cần NOT NULL?",
+    "gold_answer": "Trong PostgreSQL, CHECK không tự loại NULL khi điều kiện cho kết quả không xác định; NOT NULL chặn thiếu giá trị.",
+    "references": [
+      {
+        "section_id": "GT-3.4",
+        "evidence_quote": "Trong PostgreSQL, biểu thức CHECK cho kết quả không xác định do NULL không tự chặn NULL.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 15
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-15",
+    "category": "Giải thích",
+    "split": "dev",
+    "question": "Vì sao xóa SV01 có thể bị từ chối trong dữ liệu nền?",
+    "gold_answer": "Khóa ngoại dùng RESTRICT và SV01 còn được KetQua tham chiếu.",
+    "references": [
+      {
+        "section_id": "GT-3.5",
+        "evidence_quote": "Nếu KetQua đang có kết quả của SV01 và khóa ngoại từ KetQua sang SinhVien dùng RESTRICT, lệnh xóa SV01 bị từ chối cho tới khi các tham chiếu được xử lý hợp lệ.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 16
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-16",
+    "category": "Giải thích",
+    "split": "dev",
+    "question": "Tại sao COUNT(Email) bằng 4 trong khi có 5 sinh viên?",
+    "gold_answer": "COUNT(cột) bỏ NULL; SV04 chưa có email.",
+    "references": [
+      {
+        "section_id": "GT-4.4",
+        "evidence_quote": "Kết quả là SoDong = 5 và SoEmail = 4 vì SV04 thiếu email.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 20
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-17",
+    "category": "Giải thích",
+    "split": "dev",
+    "question": "Tại sao đếm COUNT(*) sau LEFT JOIN cho Ha lại được 1?",
+    "gold_answer": "LEFT JOIN giữ một dòng cho Ha với phía phải NULL; COUNT(*) đếm dòng đó. COUNT(k.MaMH) mới cho 0.",
+    "references": [
+      {
+        "section_id": "GT-4.8",
+        "evidence_quote": "Nếu dùng COUNT(*) trong truy vấn trên, SV05 có giá trị 1 vì dòng được LEFT JOIN bảo toàn vẫn được đếm.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 24
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-18",
+    "category": "Giải thích",
+    "split": "test",
+    "question": "Tại sao WHERE AVG(Diem) >= 7.5 sai ở truy vấn nhóm đang xét?",
+    "gold_answer": "WHERE lọc trước gộp, không đặt hàm gộp của chính cấp truy vấn vào điều kiện này; dùng HAVING.",
+    "references": [
+      {
+        "section_id": "GT-4.6",
+        "evidence_quote": "WHERE AVG(Diem) >= 7.5 là cách viết không hợp lệ cho hàm gộp tại chính cấp truy vấn này.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 22
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-19",
+    "category": "Giải thích",
+    "split": "test",
+    "question": "Tại sao không có lỗi SQL vẫn chưa chứng minh chuyển tiền thành công?",
+    "gold_answer": "UPDATE tài khoản đích không tồn tại có thể tác động 0 dòng; ứng dụng phải kiểm tra đủ tài khoản và số dòng cập nhật.",
+    "references": [
+      {
+        "section_id": "CD-1",
+        "evidence_quote": "UPDATE không tìm thấy dòng có thể kết thúc thành công với số dòng tác động bằng 0.",
+        "document_code": "CD",
+        "file_name": "CD_Giao_dich_va_ACID.pdf",
+        "pdf_page": 2
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-20",
+    "category": "Giải thích",
+    "split": "test",
+    "question": "Vì sao giữ khóa không tự bảo đảm chuyển tiền đúng?",
+    "gold_answer": "Còn phải kiểm tra số dư, tài khoản nhận và các điều kiện nghiệp vụ.",
+    "references": [
+      {
+        "section_id": "GT-5.4",
+        "evidence_quote": "Nếu số dư A không đủ, giữ khóa vẫn không làm giao dịch trở nên đúng.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 29
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-21",
+    "category": "So sánh",
+    "split": "dev",
+    "question": "Phân biệt dữ liệu và thông tin bằng ví dụ điểm 8.0.",
+    "gold_answer": "8.0 là giá trị; khi gắn với SV01 và môn CSDL, có thể rút ra thông tin SV01 đạt môn với điểm 8.0.",
+    "references": [
+      {
+        "section_id": "GT-1.1",
+        "evidence_quote": "Từ dữ liệu điểm, nhận xét “SV01 đạt môn Cơ sở dữ liệu với điểm 8.0” là thông tin.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 4
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-22",
+    "category": "So sánh",
+    "split": "dev",
+    "question": "Phân biệt độc lập dữ liệu vật lý và logic.",
+    "gold_answer": "Vật lý: thay tổ chức lưu trữ mà không buộc đổi lược đồ khái niệm. Logic: đổi lược đồ khái niệm nhưng duy trì cách nhìn/chương trình ngoài qua ánh xạ phù hợp.",
+    "references": [
+      {
+        "section_id": "GT-1.4",
+        "evidence_quote": "Độc lập dữ liệu vật lý là khả năng thay đổi tổ chức lưu trữ ở mức trong mà không buộc thay đổi lược đồ khái niệm.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 7
+      },
+      {
+        "section_id": "GT-1.4",
+        "evidence_quote": "Độc lập dữ liệu logic là khả năng thay đổi lược đồ khái niệm mà vẫn duy trì được các cách nhìn và chương trình liên quan ở mức ngoài thông qua ánh xạ phù hợp.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 7
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-23",
+    "category": "So sánh",
+    "split": "dev",
+    "question": "Phân biệt bậc và lực lượng của quan hệ.",
+    "gold_answer": "Bậc đếm thuộc tính; lực lượng đếm bộ tại thời điểm xét.",
+    "references": [
+      {
+        "section_id": "GT-2.2",
+        "evidence_quote": "Bậc của quan hệ là số thuộc tính trong lược đồ.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 9
+      },
+      {
+        "section_id": "GT-2.2",
+        "evidence_quote": "Lực lượng của quan hệ là số bộ trong thể hiện tại thời điểm đang xét.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 9
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-24",
+    "category": "So sánh",
+    "split": "dev",
+    "question": "Siêu khóa và khóa ứng viên khác nhau thế nào?",
+    "gold_answer": "Khóa ứng viên là siêu khóa tối thiểu. {MaSV, HoTen} là siêu khóa nhưng có HoTen dư khi MaSV đã duy nhất.",
+    "references": [
+      {
+        "section_id": "GT-3.1",
+        "evidence_quote": "Khóa ứng viên là siêu khóa tối thiểu: bỏ bất kỳ thuộc tính nào khỏi tập đó thì tập còn lại không còn là siêu khóa.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 12
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-25",
+    "category": "So sánh",
+    "split": "dev",
+    "question": "So sánh khóa chính và khóa ngoại về trùng giá trị và NULL.",
+    "gold_answer": "Khóa chính duy nhất và không NULL; khóa ngoại có thể lặp và có thể NULL nếu không có ràng buộc khác. KetQua.MaSV không NULL vì thuộc khóa chính ghép.",
+    "references": [
+      {
+        "section_id": "GT-3.2",
+        "evidence_quote": "Trong SQL, PRIMARY KEY yêu cầu tổ hợp giá trị khóa là duy nhất và mọi cột thuộc khóa đều không được NULL.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 13
+      },
+      {
+        "section_id": "GT-3.2",
+        "evidence_quote": "Khóa ngoại không tự bắt buộc duy nhất trong bảng con; một bảng có thể có nhiều khóa ngoại.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 13
+      },
+      {
+        "section_id": "GT-3.2",
+        "evidence_quote": "Trong dữ liệu nền, KetQua.MaSV không được NULL vì nó còn là một phần của khóa chính ghép.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 13
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-26",
+    "category": "So sánh",
+    "split": "dev",
+    "question": "So sánh ON DELETE RESTRICT và ON DELETE CASCADE khi xóa sinh viên có điểm.",
+    "gold_answer": "RESTRICT ngăn xóa khi còn tham chiếu; CASCADE xóa theo các kết quả tham chiếu nếu khóa ngoại được khai báo như vậy.",
+    "references": [
+      {
+        "section_id": "GT-3.5",
+        "evidence_quote": "ON DELETE RESTRICT ngăn xóa dòng cha khi còn dòng con tham chiếu.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 16
+      },
+      {
+        "section_id": "GT-3.5",
+        "evidence_quote": "ON DELETE CASCADE xóa các dòng con tham chiếu khi dòng cha bị xóa.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 16
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-27",
+    "category": "So sánh",
+    "split": "dev",
+    "question": "WHERE khác HAVING thế nào?",
+    "gold_answer": "WHERE lọc dòng trước nhóm; HAVING lọc nhóm sau GROUP BY.",
+    "references": [
+      {
+        "section_id": "GT-4.6",
+        "evidence_quote": "WHERE lọc từng dòng trước khi nhóm và tính các hàm gộp ở cấp truy vấn đang xét.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 22
+      },
+      {
+        "section_id": "GT-4.6",
+        "evidence_quote": "HAVING lọc các nhóm sau khi GROUP BY.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 22
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-28",
+    "category": "So sánh",
+    "split": "test",
+    "question": "INNER JOIN và LEFT JOIN khác gì khi có sinh viên chưa có điểm?",
+    "gold_answer": "INNER JOIN chỉ giữ cặp khớp; LEFT JOIN bảo toàn sinh viên phía trái và bổ sung NULL cho phần kết quả không khớp.",
+    "references": [
+      {
+        "section_id": "GT-4.7",
+        "evidence_quote": "INNER JOIN ghép những cặp dòng thỏa điều kiện nối và chỉ giữ các cặp khớp.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 23
+      },
+      {
+        "section_id": "GT-4.8",
+        "evidence_quote": "LEFT JOIN giữ mọi dòng của bảng bên trái.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 24
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-29",
+    "category": "So sánh",
+    "split": "test",
+    "question": "Dirty read khác non-repeatable read ở trạng thái COMMIT thế nào?",
+    "gold_answer": "Dirty read đọc thay đổi chưa chốt của giao dịch khác; non-repeatable read thấy giá trị đổi sau khi giao dịch khác đã chốt giữa hai lần đọc.",
+    "references": [
+      {
+        "section_id": "GT-5.3",
+        "evidence_quote": "Dirty read là tình huống một giao dịch đọc thay đổi chưa được COMMIT của giao dịch khác.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 28
+      },
+      {
+        "section_id": "GT-5.3",
+        "evidence_quote": "Non-repeatable read là tình huống một giao dịch đọc lại cùng một dòng và thấy giá trị khác vì giao dịch khác đã cập nhật rồi COMMIT giữa hai lần đọc.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 28
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-30",
+    "category": "So sánh",
+    "split": "test",
+    "question": "Nguyên tử và nhất quán khác nhau trong ví dụ chuyển tiền?",
+    "gold_answer": "Nguyên tử là hoàn tất hoặc hủy toàn bộ; nhất quán là bảo toàn quy tắc như tổng tiền không đổi và số dư không âm.",
+    "references": [
+      {
+        "section_id": "CD-2",
+        "evidence_quote": "nguyên tử bảo vệ phạm vi “tất cả hoặc không có gì”; nhất quán đòi hỏi các thao tác trong phạm vi đó thực sự bảo toàn các quy tắc dữ liệu.",
+        "document_code": "CD",
+        "file_name": "CD_Giao_dich_va_ACID.pdf",
+        "pdf_page": 3
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-31",
+    "category": "Tổng hợp",
+    "split": "dev",
+    "question": "CSDL tập trung và các chức năng quản trị giúp giảm lỗi lưu tệp rời thế nào?",
+    "gold_answer": "Giảm bản sao sự kiện không đồng bộ; dùng ràng buộc, quản lý truy cập và đồng thời để kiểm soát cập nhật. Thiết kế và vận hành vẫn cần đúng.",
+    "references": [
+      {
+        "section_id": "GT-1.2",
+        "evidence_quote": "Hệ quản trị CSDL cung cấp cơ chế ràng buộc, quản lý quyền truy cập và điều phối cập nhật; hiệu quả thực tế vẫn phụ thuộc vào thiết kế và vận hành.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 5
+      },
+      {
+        "section_id": "GT-1.3",
+        "evidence_quote": "Hệ quản trị cơ sở dữ liệu là phần mềm hỗ trợ định nghĩa, lưu trữ, truy vấn, cập nhật và quản lý cơ sở dữ liệu.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 6
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-32",
+    "category": "Tổng hợp",
+    "split": "dev",
+    "question": "Vì sao KetQua cần hai khóa ngoại nhưng lại dùng khóa chính ghép?",
+    "gold_answer": "Hai khóa ngoại bảo đảm sinh viên và môn tồn tại; cặp khóa chính bảo đảm chỉ một kết quả cho mỗi cặp theo giả định nghiệp vụ.",
+    "references": [
+      {
+        "section_id": "GT-3.1",
+        "evidence_quote": "Giả định mỗi sinh viên chỉ có một kết quả cho mỗi môn và không lưu nhiều lần thi.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 12
+      },
+      {
+        "section_id": "GT-3.2",
+        "evidence_quote": "Trong KetQua, (MaSV, MaMH) vừa là khóa chính ghép; MaSV và MaMH đồng thời tham gia hai khóa ngoại.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 13
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-33",
+    "category": "Tổng hợp",
+    "split": "dev",
+    "question": "Giải thích liên kết n-n giữa SinhVien và MonHoc và vai trò điểm.",
+    "gold_answer": "KetQua tách n-n thành hai liên kết 1-n; mỗi cặp xác định một điểm trong giả định chỉ một kết quả mỗi môn.",
+    "references": [
+      {
+        "section_id": "GT-3.3",
+        "evidence_quote": "Mô hình này dùng bảng trung gian KetQua để biểu diễn từng cặp sinh viên - môn học và lưu thêm điểm của cặp đó.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 14
+      },
+      {
+        "section_id": "GT-3.1",
+        "evidence_quote": "KetQua dùng cặp (MaSV, MaMH) để xác định duy nhất một điểm của một sinh viên trong một môn.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 12
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-34",
+    "category": "Tổng hợp",
+    "split": "dev",
+    "question": "Muốn liệt kê mọi sinh viên và số môn đã có kết quả, kể cả 0, dùng gì và kết quả ra sao?",
+    "gold_answer": "Dùng LEFT JOIN, GROUP BY s.MaSV, COUNT(k.MaMH). SV01-SV04 có 2; SV05 có 0.",
+    "references": [
+      {
+        "section_id": "GT-4.8",
+        "evidence_quote": "COUNT(k.MaMH) trả về 0 do phía phải của dòng này là NULL.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 24
+      },
+      {
+        "section_id": "BT-10",
+        "evidence_quote": "Phải đếm cột bên phải khác NULL.",
+        "document_code": "BT",
+        "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+        "pdf_page": 13
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-35",
+    "category": "Tổng hợp",
+    "split": "dev",
+    "question": "Sau khi lọc điểm từ 7 và chỉ giữ môn có ít nhất 2 kết quả, còn những môn nào và trung bình bao nhiêu?",
+    "gold_answer": "CSDL: 2 kết quả, trung bình 8.5; SQL: 2 kết quả, trung bình 8.25. LT bị loại vì chỉ còn một kết quả.",
+    "references": [
+      {
+        "section_id": "GT-4.6",
+        "evidence_quote": "Nhóm LT còn một dòng nên bị HAVING loại.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 22
+      },
+      {
+        "section_id": "BT-07",
+        "evidence_quote": "WHERE loại điểm thấp trước khi nhóm.",
+        "document_code": "BT",
+        "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+        "pdf_page": 10
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-36",
+    "category": "Tổng hợp",
+    "split": "dev",
+    "question": "Cần giữ mọi sinh viên nhưng chỉ ghép điểm CSDL khi có; điều kiện môn phải đặt ở đâu?",
+    "gold_answer": "Đặt k.MaMH = 'CSDL' trong ON của LEFT JOIN. SV04 và SV05 vẫn được giữ với điểm NULL.",
+    "references": [
+      {
+        "section_id": "GT-4.8",
+        "evidence_quote": "Nếu muốn giữ mọi sinh viên và chỉ ghép điểm CSDL khi có, đặt điều kiện k.MaMH = 'CSDL' trong ON.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 24
+      },
+      {
+        "section_id": "BT-11",
+        "evidence_quote": "Điều kiện môn đặt trong ON.",
+        "document_code": "BT",
+        "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+        "pdf_page": 14
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-37",
+    "category": "Tổng hợp",
+    "split": "dev",
+    "question": "Xóa một điểm của SV01 có làm xóa sinh viên hoặc môn học không? Giải thích theo hướng tham chiếu.",
+    "gold_answer": "Không. Xóa dòng con KetQua không tự xóa cha SinhVien hay MonHoc; lan truyền phụ thuộc hướng và chính sách khóa ngoại.",
+    "references": [
+      {
+        "section_id": "GT-3.5",
+        "evidence_quote": "Xóa một kết quả của SV01 không tự làm xóa sinh viên SV01.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 16
+      },
+      {
+        "section_id": "GT-4.9",
+        "evidence_quote": "SinhVien và MonHoc không bị xóa theo.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 25
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-38",
+    "category": "Tổng hợp",
+    "split": "test",
+    "question": "Theo giáo trình và chuyên đề, nếu chuyển 100 thành công rồi chốt thì số dư và tổng là bao nhiêu?",
+    "gold_answer": "A = 900, B = 600, tổng 1500; giả định đủ điều kiện và cả hai cập nhật đúng một dòng.",
+    "references": [
+      {
+        "section_id": "GT-5.1",
+        "evidence_quote": "giao dịch thành công cho A = 900, B = 600; tổng vẫn bằng 1500.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 26
+      },
+      {
+        "section_id": "CD-1",
+        "evidence_quote": "Khi cả hai cập nhật thành công và chốt xong, A = 900, B = 600, tổng 1500.",
+        "document_code": "CD",
+        "file_name": "CD_Giao_dich_va_ACID.pdf",
+        "pdf_page": 2
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-39",
+    "category": "Tổng hợp",
+    "split": "test",
+    "question": "Theo giáo trình và chuyên đề, kiểm tra số dòng tác động có vai trò gì nếu người nhận không tồn tại?",
+    "gold_answer": "Phát hiện UPDATE 0 dòng dù không có lỗi SQL; hủy toàn bộ bằng ROLLBACK trước chốt để tránh chỉ trừ mà không cộng.",
+    "references": [
+      {
+        "section_id": "GT-5.1",
+        "evidence_quote": "UPDATE tác động 0 dòng không nhất thiết là lỗi SQL, nên phải kiểm tra kết quả cập nhật hoặc thiết kế điều kiện nghiệp vụ phù hợp.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 26
+      },
+      {
+        "section_id": "CD-2",
+        "evidence_quote": "Nếu ứng dụng vẫn COMMIT phần trừ A, tổng tiền hai tài khoản giảm từ 1500 xuống 1400.",
+        "document_code": "CD",
+        "file_name": "CD_Giao_dich_va_ACID.pdf",
+        "pdf_page": 3
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-40",
+    "category": "Tổng hợp",
+    "split": "test",
+    "question": "Hai phiên cập nhật cùng dòng đang FOR UPDATE sẽ ra sao, và khi nào khóa được giải phóng?",
+    "gold_answer": "Phiên ghi xung đột có thể phải đợi; COMMIT hoặc ROLLBACK kết thúc giao dịch giữ khóa sẽ giải phóng khóa. Phiên đọc thường không nhất thiết bị chặn.",
+    "references": [
+      {
+        "section_id": "GT-5.4",
+        "evidence_quote": "COMMIT hoặc ROLLBACK kết thúc giao dịch và giải phóng khóa dòng của giao dịch trong tình huống này.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 29
+      },
+      {
+        "section_id": "CD-5",
+        "evidence_quote": "Câu UPDATE ở phiên 2 chờ khóa xung đột.",
+        "document_code": "CD",
+        "file_name": "CD_Giao_dich_va_ACID.pdf",
+        "pdf_page": 6
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-41",
+    "category": "Diễn đạt khác",
+    "split": "dev",
+    "question": "Nếu chỉ thêm một bạn mới vào danh sách, số cột của SinhVien có tăng không?",
+    "gold_answer": "Không. Chỉ lực lượng tăng nếu thêm thành công; bậc vẫn bằng 4.",
+    "references": [
+      {
+        "section_id": "GT-2.2",
+        "evidence_quote": "Thêm SV06 làm lực lượng SinhVien tăng từ 5 lên 6, nếu thao tác thành công, nhưng bậc vẫn bằng 4.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 9
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-42",
+    "category": "Diễn đạt khác",
+    "split": "dev",
+    "question": "Hai bạn học chung lớp có được mang cùng mã lớp không?",
+    "gold_answer": "Có. MaLop phía SinhVien có thể lặp; việc nhiều sinh viên cùng CTK1 là đúng.",
+    "references": [
+      {
+        "section_id": "GT-1.2",
+        "evidence_quote": "Nhiều sinh viên cùng có MaLop = CTK1 là dữ liệu đúng; vấn đề là lặp lại cùng một sự kiện và cập nhật không đồng bộ.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 5
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-43",
+    "category": "Diễn đạt khác",
+    "split": "dev",
+    "question": "Một bảng có thể lấy hai cột gộp lại làm “mã nhận diện” không?",
+    "gold_answer": "Có. Khóa chính có thể là khóa ghép; KetQua dùng (MaSV, MaMH).",
+    "references": [
+      {
+        "section_id": "GT-3.2",
+        "evidence_quote": "Một bảng có tối đa một ràng buộc PRIMARY KEY; khóa đó có thể gồm nhiều cột.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 13
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-44",
+    "category": "Diễn đạt khác",
+    "split": "dev",
+    "question": "Muốn tìm bạn chưa khai báo địa chỉ thư điện tử thì có dùng dấu bằng với NULL không?",
+    "gold_answer": "Không. Dùng Email IS NULL; dữ liệu nền trả SV04.",
+    "references": [
+      {
+        "section_id": "GT-4.3",
+        "evidence_quote": "Điều kiện Email = NULL không phải cách kiểm tra thiếu email.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 19
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-45",
+    "category": "Diễn đạt khác",
+    "split": "dev",
+    "question": "Nếu đề yêu cầu không lặp mã lớp trong danh sách thì dùng từ khóa nào?",
+    "gold_answer": "DISTINCT, ví dụ SELECT DISTINCT MaLop FROM SinhVien ORDER BY MaLop.",
+    "references": [
+      {
+        "section_id": "GT-4.2",
+        "evidence_quote": "Kết quả chỉ có CTK1 và CTK2.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 18
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-46",
+    "category": "Diễn đạt khác",
+    "split": "dev",
+    "question": "Chọn các môn có “điểm trung bình cao” là lọc từng dòng hay lọc nhóm?",
+    "gold_answer": "Lọc nhóm bằng HAVING AVG(Diem) theo ngưỡng; GROUP BY MaMH trước đó.",
+    "references": [
+      {
+        "section_id": "GT-4.5",
+        "evidence_quote": "HAVING lọc kết quả theo điều kiện của nhóm; ví dụ chỉ giữ các môn có điểm trung bình từ 7.5 trở lên.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 21
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-47",
+    "category": "Diễn đạt khác",
+    "split": "dev",
+    "question": "Một bạn chưa thi môn nào có biến mất khỏi danh sách khi nối với bảng điểm không?",
+    "gold_answer": "Với INNER JOIN bạn đó không được giữ; LEFT JOIN từ SinhVien giữ lại và phía điểm là NULL.",
+    "references": [
+      {
+        "section_id": "GT-4.7",
+        "evidence_quote": "INNER JOIN ghép những cặp dòng thỏa điều kiện nối và chỉ giữ các cặp khớp.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 23
+      },
+      {
+        "section_id": "GT-4.8",
+        "evidence_quote": "Nếu không có dòng bên phải khớp ON, các cột thuộc phía phải được bổ sung NULL trong kết quả.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 24
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-48",
+    "category": "Diễn đạt khác",
+    "split": "test",
+    "question": "Nếu đã bấm chốt giao dịch xong rồi, hủy một giao dịch mới có quay ngược kết quả cũ không?",
+    "gold_answer": "Không. ROLLBACK không hoàn tác giao dịch đã COMMIT thành công; cần nghiệp vụ điều chỉnh hợp lệ.",
+    "references": [
+      {
+        "section_id": "CD-4",
+        "evidence_quote": "Nếu người dùng nhập sai số tiền nhưng giao dịch đã COMMIT, ROLLBACK của một giao dịch mới không tự xóa giao dịch cũ.",
+        "document_code": "CD",
+        "file_name": "CD_Giao_dich_va_ACID.pdf",
+        "pdf_page": 5
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-49",
+    "category": "Diễn đạt khác",
+    "split": "test",
+    "question": "Cùng xem một số dư hai lần mà lần sau đổi vì người khác đã lưu xong thì gọi là gì?",
+    "gold_answer": "Non-repeatable read, nếu hai lần đọc ở cùng giao dịch.",
+    "references": [
+      {
+        "section_id": "GT-5.3",
+        "evidence_quote": "Non-repeatable read là tình huống một giao dịch đọc lại cùng một dòng và thấy giá trị khác vì giao dịch khác đã cập nhật rồi COMMIT giữa hai lần đọc.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 28
+      }
+    ],
+    "answerable": true
+  },
+  {
+    "id": "RAG-50",
+    "category": "Diễn đạt khác",
+    "split": "test",
+    "question": "Muốn giữ chỗ một dòng để kiểm tra rồi sửa, câu SELECT thêm phần nào?",
+    "gold_answer": "SELECT ... FOR UPDATE trong giao dịch; kết thúc giao dịch để giải phóng khóa.",
+    "references": [
+      {
+        "section_id": "GT-5.4",
+        "evidence_quote": "Giáo trình chỉ xét khóa dòng và thao tác SELECT ... FOR UPDATE ở mức nhập môn.",
+        "document_code": "GT",
+        "file_name": "GT_Co_so_du_lieu.pdf",
+        "pdf_page": 29
+      }
+    ],
+    "answerable": true
+  }
+]

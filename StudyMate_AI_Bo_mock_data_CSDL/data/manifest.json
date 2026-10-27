@@ -1,0 +1,341 @@
+{
+  "version": "1.0",
+  "created": "2026-10-27",
+  "synthetic_data": true,
+  "ingest_pdf": [
+    {
+      "code": "GT",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pages": 30
+    },
+    {
+      "code": "BT",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pages": 15
+    },
+    {
+      "code": "CD",
+      "file_name": "CD_Giao_dich_va_ACID.pdf",
+      "pages": 6
+    }
+  ],
+  "do_not_ingest": [
+    "KT_Demo_RAG_Quiz_Ho_so.pdf",
+    "data/"
+  ],
+  "section_map": [
+    {
+      "section_id": "GT-COVER",
+      "title": "GIÁO TRÌNH CƠ SỞ DỮ LIỆU",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 1
+    },
+    {
+      "section_id": "GT-GUIDE",
+      "title": "Cách dùng giáo trình",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 2
+    },
+    {
+      "section_id": "GT-TOC",
+      "title": "Mục lục",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 3
+    },
+    {
+      "section_id": "GT-1.1",
+      "title": "1.1 Dữ liệu, thông tin và CSDL",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 4
+    },
+    {
+      "section_id": "GT-1.2",
+      "title": "1.2 Hạn chế của cách lưu tệp rời",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 5
+    },
+    {
+      "section_id": "GT-1.3",
+      "title": "1.3 Hệ quản trị CSDL và vai trò",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 6
+    },
+    {
+      "section_id": "GT-1.4",
+      "title": "1.4 Kiến trúc ba mức",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 7
+    },
+    {
+      "section_id": "GT-2.1",
+      "title": "2.1 Quan hệ, bộ và thuộc tính",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 8
+    },
+    {
+      "section_id": "GT-2.2",
+      "title": "2.2 Lược đồ, bậc và lực lượng",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 9
+    },
+    {
+      "section_id": "GT-2.3",
+      "title": "2.3 Tính chất và các mô hình",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 10
+    },
+    {
+      "section_id": "GT-2.4",
+      "title": "2.4 Dữ liệu nền dùng xuyên suốt",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 11
+    },
+    {
+      "section_id": "GT-3.1",
+      "title": "3.1 Siêu khóa và khóa ứng viên",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 12
+    },
+    {
+      "section_id": "GT-3.2",
+      "title": "3.2 So sánh khóa chính và khóa ngoại",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 13
+    },
+    {
+      "section_id": "GT-3.3",
+      "title": "3.3 Liên kết 1-1, 1-n và n-n",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 14
+    },
+    {
+      "section_id": "GT-3.4",
+      "title": "3.4 Ba nhóm ràng buộc toàn vẹn",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 15
+    },
+    {
+      "section_id": "GT-3.5",
+      "title": "3.5 Xóa dữ liệu và tham chiếu",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 16
+    },
+    {
+      "section_id": "GT-4.1",
+      "title": "4.1 CREATE TABLE và ràng buộc",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 17
+    },
+    {
+      "section_id": "GT-4.2",
+      "title": "4.2 SELECT, ORDER BY, DISTINCT",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 18
+    },
+    {
+      "section_id": "GT-4.3",
+      "title": "4.3 WHERE và điều kiện lọc",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 19
+    },
+    {
+      "section_id": "GT-4.4",
+      "title": "4.4 COUNT, SUM, AVG, MIN, MAX",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 20
+    },
+    {
+      "section_id": "GT-4.5",
+      "title": "4.5 GROUP BY và HAVING",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 21
+    },
+    {
+      "section_id": "GT-4.6",
+      "title": "4.6 So sánh WHERE với HAVING",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 22
+    },
+    {
+      "section_id": "GT-4.7",
+      "title": "4.7 INNER JOIN",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 23
+    },
+    {
+      "section_id": "GT-4.8",
+      "title": "4.8 LEFT JOIN và đếm số kết quả",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 24
+    },
+    {
+      "section_id": "GT-4.9",
+      "title": "4.9 INSERT, UPDATE và DELETE",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 25
+    },
+    {
+      "section_id": "GT-5.1",
+      "title": "5.1 Giao dịch, COMMIT và ROLLBACK",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 26
+    },
+    {
+      "section_id": "GT-5.2",
+      "title": "5.2 Bốn tính chất ACID",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 27
+    },
+    {
+      "section_id": "GT-5.3",
+      "title": "5.3 Ba bất thường khi chạy đồng thời",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 28
+    },
+    {
+      "section_id": "GT-5.4",
+      "title": "5.4 Khóa và bảo vệ cập nhật",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 29
+    },
+    {
+      "section_id": "GT-RECAP",
+      "title": "Tổng hợp kiến thức và nguồn kiểm tra",
+      "file_name": "GT_Co_so_du_lieu.pdf",
+      "pdf_page": 30
+    },
+    {
+      "section_id": "BT-COVER",
+      "title": "BÀI TẬP SQL VÀ LỜI GIẢI",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 1
+    },
+    {
+      "section_id": "BT-DDL",
+      "title": "BT-DDL Lược đồ đầy đủ",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 2
+    },
+    {
+      "section_id": "BT-SEED",
+      "title": "BT-SEED Dữ liệu khởi tạo",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 3
+    },
+    {
+      "section_id": "BT-01",
+      "title": "Bài 1. Liệt kê sinh viên theo lớp",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 4
+    },
+    {
+      "section_id": "BT-02",
+      "title": "Bài 2. Lọc điểm theo khoảng",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 5
+    },
+    {
+      "section_id": "BT-03",
+      "title": "Bài 3. Tìm giá trị thiếu và mẫu tên",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 6
+    },
+    {
+      "section_id": "BT-04",
+      "title": "Bài 4. Đếm và thống kê toàn bộ",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 7
+    },
+    {
+      "section_id": "BT-05",
+      "title": "Bài 5. Nhóm theo môn",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 8
+    },
+    {
+      "section_id": "BT-06",
+      "title": "Bài 6. Lọc nhóm theo trung bình",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 9
+    },
+    {
+      "section_id": "BT-07",
+      "title": "Bài 7. Kết hợp WHERE và HAVING",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 10
+    },
+    {
+      "section_id": "BT-08",
+      "title": "Bài 8. Nối bảng để lấy tên",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 11
+    },
+    {
+      "section_id": "BT-09",
+      "title": "Bài 9. Tìm sinh viên chưa có kết quả",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 12
+    },
+    {
+      "section_id": "BT-10",
+      "title": "Bài 10. Đếm cả sinh viên chưa có điểm",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 13
+    },
+    {
+      "section_id": "BT-11",
+      "title": "Bài 11. Giữ mọi sinh viên khi lọc môn",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 14
+    },
+    {
+      "section_id": "BT-12",
+      "title": "Bài 12. Thử cập nhật rồi khôi phục",
+      "file_name": "BT_SQL_Bai_tap_va_loi_giai.pdf",
+      "pdf_page": 15
+    },
+    {
+      "section_id": "CD-COVER",
+      "title": "GIAO DỊCH VÀ ACID",
+      "file_name": "CD_Giao_dich_va_ACID.pdf",
+      "pdf_page": 1
+    },
+    {
+      "section_id": "CD-1",
+      "title": "CD-1 Chuyển tiền có kiểm tra",
+      "file_name": "CD_Giao_dich_va_ACID.pdf",
+      "pdf_page": 2
+    },
+    {
+      "section_id": "CD-2",
+      "title": "CD-2 Nguyên tử và nhất quán",
+      "file_name": "CD_Giao_dich_va_ACID.pdf",
+      "pdf_page": 3
+    },
+    {
+      "section_id": "CD-3",
+      "title": "CD-3 Đọc lịch thao tác đồng thời",
+      "file_name": "CD_Giao_dich_va_ACID.pdf",
+      "pdf_page": 4
+    },
+    {
+      "section_id": "CD-4",
+      "title": "CD-4 Chốt, hủy và tính bền vững",
+      "file_name": "CD_Giao_dich_va_ACID.pdf",
+      "pdf_page": 5
+    },
+    {
+      "section_id": "CD-5",
+      "title": "CD-5 Minh họa khóa bằng hai phiên",
+      "file_name": "CD_Giao_dich_va_ACID.pdf",
+      "pdf_page": 6
+    }
+  ],
+  "counts": {
+    "answerable_rag": 50,
+    "unanswerable": 10,
+    "reference_quiz": 25,
+    "profiles": 5,
+    "demo_scenes": 6
+  }
+}

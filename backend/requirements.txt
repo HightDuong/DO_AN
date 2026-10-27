@@ -11,4 +11,5 @@ pymupdf
 tiktoken
 httpx
 google-genai
+openai
 pytest
