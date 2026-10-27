@@ -9,7 +9,8 @@ from app.auth import get_current_user_id
 from app.db import get_db
 from app.schemas import ChatRequest, ChatResponse, CitationOut, SourceOut
 from app.services.embedding_service import EmbeddingError
-from app.services.rag_service import LLMError, answer_question
+from app.services.llm_service import LLMError
+from app.services.rag_service import answer_question
 
 log = logging.getLogger(__name__)
 

@@ -1,9 +1,15 @@
-"""Kích hoạt extension pgvector trên Supabase và tạo bảng.
+"""Kích hoạt extension pgvector trên Supabase và tạo các bảng còn thiếu.
+
+Bảng hiện có: documents, document_chunks (Task 1); quiz_sets, quiz_questions, quiz_question_sources,
+quiz_attempts, quiz_responses, user_topic_mastery (Task 4).
 
 Chạy từ thư mục backend/:
     python init_db.py
+
+Chạy lại nhiều lần an toàn: bảng đã có được bỏ qua. Lưu ý: create_all KHÔNG sửa cấu trúc bảng đã
+tồn tại — muốn đổi cột của bảng cũ phải viết migration riêng.
 """
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 
 from app import models  # noqa: F401  (đăng ký models vào Base.metadata)
 from app.db import Base, engine
@@ -20,9 +26,11 @@ def main() -> None:
         ).scalar_one()
         print(f"pgvector đã bật (phiên bản {vector_version})")
 
-    # create_all chỉ tạo bảng chưa tồn tại, không sửa bảng đã có.
+    existing = set(inspect(engine).get_table_names())
     Base.metadata.create_all(bind=engine)
-    print("Đã tạo bảng:", ", ".join(Base.metadata.tables))
+
+    for table in Base.metadata.tables:
+        print(f"  {'đã có   ' if table in existing else 'MỚI TẠO '} {table}")
 
 
 if __name__ == "__main__":

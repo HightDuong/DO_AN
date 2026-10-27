@@ -10,13 +10,12 @@ Cập nhật file này sau mỗi task hoàn thành.
 |---|---|
 | 1. Database schema + pipeline nạp PDF | ✅ Xong (Task 1, 2) |
 | 2. RAG Tutor Agent | ✅ Task 3 xong, đã đánh giá bằng bộ 60 câu mock data — xem bên dưới |
-| 3. Supervisor + Quiz Agent | ⬜ Chưa bắt đầu |
+| 3. Supervisor + Quiz Agent | ✅ Task 4 xong (schema quiz, Quiz Agent, chấm điểm, mastery, LangGraph Supervisor, API) |
 | 4. Study Planner Agent | ⬜ Chưa bắt đầu |
 | 5. Frontend | ⬜ Chưa bắt đầu |
 
 ## Quyết định khác với spec gốc (quan trọng, đừng revert)
 
-- **LLM provider: Google Gemini**, không dùng $6 credit OpenAI còn lại (để dành cho giai đoạn đánh giá cuối nếu cần so sánh chất lượng).
 - **Embedding model: `gemini-embedding-001`** (768 chiều, có chuẩn hoá L2), không dùng `text-embedding-004` như draft ban đầu — model đó đã ngừng hỗ trợ.
 - **SDK: `google-genai`**, không dùng `google-generativeai` — thư viện cũ đã deprecated.
 - **DB: Supabase qua Connection Pooler** (`*.pooler.supabase.com:6543`), không dùng host `db.<ref>.supabase.co:5432` trực tiếp — host trực tiếp chỉ có IPv6, máy dev không kết nối được (lỗi "could not translate host name").
@@ -25,7 +24,8 @@ Cập nhật file này sau mỗi task hoàn thành.
 - **LLM trả lời: `LLM_PROVIDER=openai` là mặc định lâu dài** (user quyết định 2026-10-27; code vẫn hỗ trợ `gemini` để dự phòng).
   - Gemini: model `gemini-3.5-flash` (đổi qua `LLM_MODEL`). Không dùng `gemini-1.5-flash`/`2.0-flash` (không còn trong API), `gemini-2.5-flash` (404 "no longer available to new users"), `gemini-3.8-flash`/`3.7-flash`/`flash-latest` (timeout 504 liên tục ở gói free, đo ngày 2026-10-27). `gemini-3.5-flash` ~5s/lời gọi; dự phòng `gemini-3.5-flash-lite` (~1.5s, chất lượng thấp hơn, quota riêng).
   - **Gói Gemini free-tier giới hạn 20 lượt gọi `generate_content`/ngày** (dùng chung cho mọi model flash, Google trả lỗi 429 kèm thời gian chờ reset ~24h tính từ request đầu ngày). Đây là giới hạn nghiêm trọng cho việc dev/test lặp lại — **cần tính đến khi làm Quiz Agent và Study Planner** (sẽ cộng dồn số lượt gọi).
-  - **OpenAI (`openai`, model `OPENAI_MODEL` mặc định `gpt-4o-mini`)**: dùng `client.chat.completions.parse` với Pydantic schema, quota/giá riêng, không bị chung giới hạn với Gemini. **Hiện `.env` đang đặt `LLM_PROVIDER=openai`** (đổi tạm ngày 2026-10-27 vì Gemini hết quota giữa lúc chạy bộ đánh giá 60 câu — theo yêu cầu user, dùng key OpenAI đã có sẵn). Đây là **ngoại lệ có chủ đích** với rule "chỉ 1 LLM provider" (CLAUDE.md mục 2) — embedding vẫn luôn dùng Gemini (`gemini-embedding-001`), chỉ bước sinh câu trả lời có thể đổi provider. **Cần quyết định provider nào là mặc định lâu dài** (xem việc cần làm tiếp).
+  - **OpenAI (`OPENAI_MODEL`, mặc định `gpt-4o-mini`)**: dùng `client.chat.completions.parse` với Pydantic schema. Chuyển sang ngày 2026-10-27 vì Gemini free-tier hết quota giữa lúc chạy bộ đánh giá 60 câu. Đây là **ngoại lệ có chủ đích** với rule "chỉ 1 LLM provider" (CLAUDE.md mục 2): embedding vẫn luôn dùng Gemini (`gemini-embedding-001`), chỉ bước sinh nội dung (RAG, quiz, phân loại intent) dùng OpenAI.
+  - Toàn bộ lời gọi LLM đi qua `app/services/llm_service.py::generate_structured(system, prompt, schema)` (timeout + retry tối đa 2 lần).
 - **Ngưỡng tương đồng `RETRIEVAL_MIN_SIMILARITY = 0.65`**: đo trên giáo trình thật, câu trong giáo trình top-1 ≥ 0.73, câu ngoài phạm vi ≤ 0.62. Dưới ngưỡng → trả "chưa đủ bằng chứng" mà không gọi LLM (tiết kiệm quota).
 
 ## Việc đã làm
@@ -53,7 +53,7 @@ Cập nhật file này sau mỗi task hoàn thành.
   3. (phụ) Câu lệnh SQL in đậm viết hoa (`SELECT * FROM EMP`) bị nhận nhầm thành tiêu đề vì trùng điều kiện bold+uppercase. Đã thêm điều kiện: nhánh fallback bold+uppercase chỉ tính là tiêu đề khi có ký tự có dấu tiếng Việt (tiêu đề thật luôn có dấu, code/SQL thì không).
 - **Known limitation (không phải bug)**: ~50% chunk dưới 500 token vì luật tự đặt "không để chunk vắt qua 2 mục" — giáo trình có nhiều mục con ngắn. Cần bộ câu hỏi đánh giá thực tế để quyết định có nới luật này không (spec đã ghi rõ 500-800 chỉ là điểm xuất phát).
 
-### Task 3 — RAG Tutor & `POST /api/chat` (xong, chờ user đánh giá chất lượng)
+### Task 3 — RAG Tutor & `POST /api/chat` (xong)
 - `backend/app/services/rag_service.py`:
   - `search_knowledge`: embed câu hỏi (`RETRIEVAL_QUERY`, cùng model với lúc index), truy vấn cosine `<=>`, **lọc theo `owner_id` và `status=indexed`**, tuỳ chọn lọc `document_ids`.
   - Schema Structured Output `RagAnswer { answer, citations: [Citation{document_id, document_title, page_number, section, quote}], has_enough_evidence }`.
@@ -67,8 +67,44 @@ Cập nhật file này sau mỗi task hoàn thành.
   - "GROUP BY và HAVING khác nhau?" → trả lời đúng, 3 trích dẫn hợp lệ (tr.31, 36); 1 trích dẫn LLM ghi sai trang 37 đã bị lớp kiểm chứng loại.
   - "Khóa chính và khóa ngoại khác nhau?" → từ chối. **Đúng**: đã xác minh giáo trình không hề có cụm "khóa ngoại".
   - Câu ngoài phạm vi (thủ đô Pháp, MongoDB sharding) và câu prompt injection → từ chối ở bước ngưỡng, không gọi LLM.
-- Chưa làm (ngoài phạm vi Task 3): tool `get_document_metadata` (metadata đã có sẵn trong kết quả `search_knowledge`), lưu lịch sử `chat_sessions`/`chat_messages`, LangGraph workflow.
+- Chưa làm (ngoài phạm vi Task 3): tool `get_document_metadata` (metadata đã có sẵn trong kết quả `search_knowledge`), lưu lịch sử `chat_sessions`/`chat_messages`.
 - Lưu ý: chunk chỉ lưu trang bắt đầu, nên khi nội dung vắt sang trang sau, LLM đôi khi trích trang kế tiếp → bị loại (an toàn nhưng có thể mất trích dẫn đúng). Theo dõi khi có bộ đánh giá.
+
+### Task 4 — Quiz schema, Quiz Agent, LangGraph Supervisor (xong, 2026-10-27)
+**Database** (`app/models.py`, đã tạo trên Supabase bằng `python init_db.py`):
+- `quiz_sets` (creator_id, title, topic, question_count, difficulty), `quiz_questions` (options JSONB 4 phần tử theo thứ tự A-D, `correct_answer` 'A'-'D', explanation, topic, difficulty; CHECK đúng 4 phương án và đáp án hợp lệ), `quiz_question_sources` (PK question_id + chunk_id, FK `ON DELETE CASCADE` sang `document_chunks`), `quiz_attempts` (score 0-100, correct_count, total_questions, duration_seconds, status), `quiz_responses` (selected_answer NULL = bỏ trống, is_correct, points), `user_topic_mastery` (PK user_id + topic, mastery_score 0..1, attempts_count, correct_count, total_count, last_attempt_at).
+
+**Quyết định thiết kế:**
+- **Chủ đề cố định 5 giá trị** đúng như mock data: "Tổng quan", "Mô hình quan hệ", "Khóa và liên kết", "SQL", "Giao dịch" (enum `QuizTopic`). Độ khó: "Cơ bản", "Vận dụng" (giống `quiz_reference.json`). Để Study Planner đọc được `learner_profiles.json` mà không cần ánh xạ.
+- **Đáp án lưu dạng chữ cái A-D** (giống mock data), không phải số thứ tự.
+- **Mastery = tỷ lệ đúng tích luỹ** (`correct_count / total_count` qua mọi lần làm). Đơn giản, giải thích được. Hạn chế: làm lại cùng một đề nhiều lần (đã thấy đáp án) vẫn được tính, làm tăng mastery. Có thể đổi sang trọng số theo thời gian sau.
+- **Chủ đề yếu** = mastery < `WEAK_TOPIC_THRESHOLD` (0.7).
+- **Trích nguồn khi sinh đề**: chunk đưa vào prompt được gán mã ngắn `C1..C8`, LLM trả mã, server ánh xạ về `chunk_id` thật. Lý do: ở Task 3 LLM từng chép sai UUID; mã ngắn ít lỗi hơn và vẫn bảo đảm `chunk_id` lưu vào DB chắc chắn thuộc tập vừa truy xuất.
+- **Trộn thứ tự 4 phương án phía server** sau khi kiểm tra: chạy thật thấy LLM đặt đáp án đúng chủ yếu ở A (5 câu: A, B, B, A, A). Vì vậy prompt cấm lời giải thích nhắc "đáp án A/B...", và code loại câu vi phạm.
+
+**Quiz Agent** (`app/services/quiz_service.py`):
+- `retrieve_topic_chunks`: mỗi chủ đề có 2-4 truy vấn bao quát (`TOPIC_QUERIES`), gộp kết quả, bỏ trùng, bỏ chunk dưới ngưỡng 0.65, giữ tối đa 8 chunk; lọc theo `owner_id`.
+- `generate_quiz`: tối đa 2 vòng gọi LLM (vòng 2 chỉ bù số câu bị loại, kèm danh sách câu đã có để tránh trùng). Không có chunk liên quan thì báo lỗi ngay, không gọi LLM.
+- `validate_generated_questions`: đúng 4 phương án không rỗng, không trùng; không có phương án kiểu "tất cả / không đáp án nào" (nguy cơ nhiều đáp án đúng); có giải thích, không nhắc chữ cái phương án; ít nhất 1 nguồn hợp lệ; không trùng câu đã có.
+- `grade_attempt`: chấm bằng so sánh với `correct_answer` trong DB (không gọi LLM), câu bỏ trống tính sai, câu không thuộc đề trả lỗi 400. Lưu attempt + responses + cập nhật mastery trong **một transaction**; mastery dùng `INSERT ... ON CONFLICT DO NOTHING` rồi `SELECT ... FOR UPDATE` để hai bài nộp đồng thời không ghi đè nhau.
+- `learning_summary`: số tài liệu đã index, số đề đã tạo, số lần làm, điểm TB, điểm gần nhất, 10 lần làm gần nhất, mastery 5 chủ đề, chủ đề yếu.
+
+**Supervisor** (`app/agents/workflow.py`, LangGraph 1.2): `START -> classify_intent -> (rag_tutor | quiz_agent) -> END`.
+- `classify_intent` dùng LLM (Structured Output: intent + topic/num_questions/difficulty nếu là quiz); LLM lỗi thì fallback phân loại bằng từ khoá.
+- Quiz chưa rõ chủ đề: trả `clarification` hỏi lại, không sinh đề.
+- Chống vòng lặp: đồ thị không có cạnh quay lui (test kiểm tra đúng tập cạnh), `recursion_limit=5`, mỗi lời gọi LLM có timeout + retry giới hạn. Lỗi trong agent trả về `result.type = "error"`, không làm sập workflow.
+- **Chưa nối vào API**: `POST /api/chat` vẫn gọi thẳng RAG Tutor (xem "Cần user quyết định").
+
+**API** (`app/routers/quizzes.py`):
+- `POST /api/quizzes/generate` `{topic, num_questions 1-10, difficulty, document_ids?}`: 201, đề KHÔNG kèm đáp án.
+- `GET /api/quizzes/{id}`: đề làm bài, ẩn `correct_answer`, `explanation`, nguồn. Chỉ người tạo đề truy cập được (người khác nhận 404).
+- `POST /api/quizzes/{id}/attempts` `{answers: [{question_id, selected_answer A-D|null}], duration_seconds?}`: điểm, từng câu (đã chọn, đáp án đúng, giải thích, nguồn: tài liệu/trang/mục), mastery mới.
+- `GET /api/learning-summary`.
+
+**Kiểm thử:**
+- `pytest`: **61 test pass** (12 RAG cũ + 31 quiz + 18 supervisor), tất cả offline (LLM, truy xuất, session đều giả).
+- Chạy thật trên Supabase + OpenAI: sinh đề SQL 5 câu (~14s), GET không lộ đáp án, nộp lần 1 được 40% (2/5, 2 câu bỏ trống) nên mastery SQL 0.4; nộp lần 2 đúng hết, mastery 0.7 (7/10, cộng dồn đúng); câu hỏi lạ trả 400; đề không tồn tại trả 404. Supervisor phân loại đúng 4/4 tin nhắn thật, kể cả câu đánh lừa "Kiểm tra giúp mình xem khóa ngoại là gì" (sang RAG). Lớp kiểm tra đã loại 1 câu có phương án "tất cả..." và vòng 2 sinh bù đủ.
+- Dữ liệu quiz tạo trong lúc test đã được xoá (DB sạch cho demo).
 
 ### Đánh giá bằng bộ mock data CSDL (2026-10-27)
 Dữ liệu: `StudyMate_AI_Bo_mock_data_CSDL/` (user chuẩn bị) — corpus 3 PDF (`GT_Co_so_du_lieu`, `BT_SQL_Bai_tap_va_loi_giai`, `CD_Giao_dich_va_ACID`, nạp từ `sample_docs/`), `data/rag_eval.json` (50 câu có nguồn chuẩn), `data/negative_eval.json` (10 câu cần từ chối).
@@ -90,10 +126,13 @@ Script: `backend/scripts/test_rag.py` (nạp corpus + 2 câu kiểm tra nhanh) v
 - **Phát hiện phụ**: vài lần LLM nhầm `document_id` với số thứ tự `so="N"` của thẻ `<nguon>` trong prompt → bị `validate_citations` loại đúng, không lọt ra ngoài, nhưng làm giảm số trích dẫn. Đã sửa: làm rõ trong system prompt rằng `document_id` là UUID, không phải số thứ tự.
 - Chi phí OpenAI cho 60 lời gọi: không đáng kể so với $6 (gpt-4o-mini, prompt ngắn).
 
+## Cần user quyết định
+- **Có nối `POST /api/chat` qua Supervisor không?** Spec (mục VIII) ghi `/api/chat` "hỏi đáp qua RAG và Supervisor". Nếu nối: mỗi tin nhắn tốn thêm 1 lượt gọi LLM để phân loại (~1s), và response của `/api/chat` phải đổi thành dạng có `type` (rag_answer / quiz / clarification). Hiện để nguyên để không phá API đang dùng.
+
 ## Việc còn thiếu / cần làm tiếp
 
 - Bảng `profiles` (chưa có FK từ `documents.owner_id`).
 - OCR cho PDF scan (spec ghi rõ: để giai đoạn sau).
-- Quiz Agent, Study Planner Agent, Supervisor (LangGraph) — chưa viết dòng nào.
+- Study Planner Agent (Task 5) — chưa viết dòng nào. Sẽ thêm nhánh `study_planner` vào Supervisor.
 - Frontend — chưa khởi tạo.
-- Bộ câu hỏi đánh giá RAG (~50 câu) — chưa chuẩn bị.
+- Đánh giá chất lượng quiz do AI sinh (spec XII.2: >= 90% câu rõ ràng, có căn cứ) — chưa có script; có thể đối chiếu với `quiz_reference.json`.

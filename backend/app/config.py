@@ -46,6 +46,12 @@ class Settings(BaseSettings):
     # top-1 >= 0.73, câu ngoài phạm vi <= 0.62. Cần hiệu chỉnh lại khi có bộ câu hỏi đánh giá đầy đủ.
     retrieval_min_similarity: float = 0.65
 
+    # Quiz
+    quiz_max_questions: int = 10
+    quiz_context_chunks: int = 8  # số chunk tối đa đưa vào LLM khi sinh đề
+    quiz_generation_rounds: int = 2  # lần gọi LLM tối đa để bù câu bị loại khi kiểm tra
+    weak_topic_threshold: float = 0.7  # mastery dưới ngưỡng này -> chủ đề cần ôn
+
     # Chunking (đơn vị: token)
     chunk_min_tokens: int = 500
     chunk_max_tokens: int = 800

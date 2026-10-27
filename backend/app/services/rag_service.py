@@ -9,13 +9,10 @@ Nguyên tắc chống ảo giác:
 """
 import logging
 import re
-import time
 import unicodedata
 from dataclasses import dataclass
 from uuid import UUID
 
-import httpx
-from google.genai import errors, types
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -23,15 +20,12 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.models import Document, DocumentChunk, DocumentStatus
 from app.services.embedding_service import embed_query
-from app.services.gemini_client import RETRYABLE_STATUS, get_client
+from app.services.llm_service import generate_structured
 
 log = logging.getLogger(__name__)
 
 NOT_ENOUGH_EVIDENCE = "Chưa tìm thấy đủ bằng chứng trong tài liệu."
 
-
-class LLMError(Exception):
-    """Không nhận được câu trả lời hợp lệ từ LLM sau khi đã thử lại."""
 
 
 # ---------------------------------------------------------------------------
@@ -152,80 +146,8 @@ def _build_prompt(question: str, chunks: list[RetrievedChunk]) -> str:
     return "\n\n".join(parts) + f"\n\n<cau_hoi>\n{question}\n</cau_hoi>"
 
 
-def _call_gemini(prompt: str) -> RagAnswer:
-    config = types.GenerateContentConfig(
-        system_instruction=SYSTEM_PROMPT,
-        temperature=settings.llm_temperature,
-        response_mime_type="application/json",
-        response_schema=RagAnswer,
-        http_options=types.HttpOptions(timeout=settings.llm_timeout_seconds * 1000),
-    )
-    try:
-        response = get_client().models.generate_content(model=settings.llm_model, contents=prompt, config=config)
-    except errors.APIError as exc:
-        retryable = exc.code in RETRYABLE_STATUS
-        raise _ProviderCallError(f"Gemini lỗi ({exc.code}): {exc.message}", retryable) from exc
-    except httpx.TransportError as exc:
-        raise _ProviderCallError(f"Không kết nối được Gemini: {exc}", retryable=True) from exc
-    if not isinstance(response.parsed, RagAnswer):
-        raise _ProviderCallError("Gemini không trả về JSON đúng schema.", retryable=True)
-    return response.parsed
-
-
-def _call_openai(prompt: str) -> RagAnswer:
-    import openai  # import trễ: chỉ cần khi llm_provider=openai
-
-    if not settings.openai_api_key:
-        raise LLMError("llm_provider=openai nhưng OPENAI_API_KEY chưa đặt trong .env.")
-    client = openai.OpenAI(api_key=settings.openai_api_key, timeout=settings.llm_timeout_seconds)
-    try:
-        response = client.chat.completions.parse(
-            model=settings.openai_model,
-            temperature=settings.llm_temperature,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": prompt},
-            ],
-            response_format=RagAnswer,
-        )
-    except openai.APITimeoutError as exc:
-        raise _ProviderCallError(f"OpenAI timeout: {exc}", retryable=True) from exc
-    except openai.APIStatusError as exc:
-        retryable = exc.status_code in RETRYABLE_STATUS
-        raise _ProviderCallError(f"OpenAI lỗi ({exc.status_code}): {exc.message}", retryable) from exc
-    parsed = response.choices[0].message.parsed
-    if not isinstance(parsed, RagAnswer):
-        refusal = response.choices[0].message.refusal
-        raise _ProviderCallError(f"OpenAI không trả về JSON đúng schema (refusal={refusal!r}).", retryable=True)
-    return parsed
-
-
-class _ProviderCallError(Exception):
-    def __init__(self, message: str, retryable: bool):
-        super().__init__(message)
-        self.retryable = retryable
-
-
-_PROVIDERS = {"gemini": _call_gemini, "openai": _call_openai}
-
-
 def _generate_answer(prompt: str) -> RagAnswer:
-    call = _PROVIDERS.get(settings.llm_provider)
-    if call is None:
-        raise LLMError(f"llm_provider không hợp lệ: {settings.llm_provider!r} (chỉ nhận gemini/openai).")
-
-    max_retries = settings.llm_max_retries
-    for attempt in range(max_retries + 1):
-        try:
-            return call(prompt)
-        except _ProviderCallError as exc:
-            if not exc.retryable or attempt == max_retries:
-                raise LLMError(str(exc)) from exc
-            reason = str(exc)
-        delay = 2 ** (attempt + 1)
-        log.warning("Gọi LLM lỗi (%s), thử lại sau %ss (%d/%d)", reason, delay, attempt + 1, max_retries)
-        time.sleep(delay)
-    raise AssertionError("unreachable")
+    return generate_structured(SYSTEM_PROMPT, prompt, RagAnswer)
 
 
 # ---------------------------------------------------------------------------
